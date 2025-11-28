@@ -1,0 +1,44 @@
+#ifndef _STM8_PWM_CONFIG_H
+#define _STM8_PWM_CONFIG_H
+
+// #define STM8_PWM_CONFIG
+
+#ifndef STM8_PWM_CONFIG
+
+#define PWM_FREQUENCY 1000 /* 1K */
+
+#define PWM_SIGNAL_INVERSE
+
+#define TIMER1_CH1_ENABLE
+#define TIME1_CH1_COMPLEMENTARY /* TIMER1_CH1N */
+// #define TIMER1_CH1_SHIFT
+
+#define TIMER1_CH2_ENABLE
+#define TIME1_CH2_COMPLEMENTARY /* TIMER1_CH2N */
+#define TIMER1_CH2_SHIFT
+
+// #define TIMER1_CH3_ENABLE
+// #define TIME1_CH3_COMPLEMENTARY /* TIMER1_CH3N */
+// #define TIMER1_CH3_SHIFT
+
+// #define TIMER2_CH1_ENABLE
+// #define TIMER2_CH1_SHIFT
+
+// #define TIMER2_CH2_ENABLE
+// #define TIMER2_CH2_SHIFT
+
+// #define TIMER3_CH1_ENABLE
+// #define TIMER3_CH1_SHIFT
+
+// #define TIMER3_CH2_ENABLE
+// #define TIMER3_CH2_SHIFT
+
+// #define TIMER5_CH1_ENABLE
+// #define TIMER5_CH1_SHIFT
+
+// #define TIMER5_CH2_ENABLE
+// #define TIMER5_CH2_SHIFT
+
+#endif
+
+#endif

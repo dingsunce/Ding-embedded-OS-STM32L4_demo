@@ -1,0 +1,17 @@
+C:\iar\ewarm-9.60.2\arm\bin\armPROC.dll
+
+ C:\iar\ewarm-9.60.2\arm\bin\armSTLINK.dll
+
+ D:\SVN\Project_KNX_Stack\Software\trunk\xKnxStack\STM32L462\EWARM\KnxRfSystemB\Exe\KnxTpSystemB.out
+
+ --plugin=C:\iar\ewarm-9.60.2\arm\bin\armLibSupportUniversal.dll
+
+ --device_macro=C:\iar\ewarm-9.60.2\arm/config/debugger/ST/STM32L4xx.dmac
+
+ --macro_param=MassEraseBeforeFlashing=1
+
+ --flash_loader=C:\iar\ewarm-9.60.2\arm/config/flashloader/ST/FlashSTM32L43xxE.board
+
+ 
+
+
