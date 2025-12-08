@@ -65,7 +65,7 @@ os_thread_t *os_thread_create(char *name, uint32_t priority, size_t stacksize,
 //-----------------------------------------------------------------------------------------------------------
 void os_thread_destroy(os_thread_t *thread)
 {
-  DWORD dwExitCode;
+  DWORD dwExitCode = 0;
   TerminateThread(thread, dwExitCode);
 }
 //-----------------------------------------------------------------------------------------------------------

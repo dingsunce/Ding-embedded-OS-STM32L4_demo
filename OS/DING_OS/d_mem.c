@@ -6,8 +6,8 @@
 #include "osal.h"
 
 #if (MEM_DEBUG == 1)
-#define MEM_ALLOC 0
-#define MEM_FREE  'F'
+#define DMEM_ALLOC 0
+#define DMEM_FREE  'F'
 static u16 MemAlo = 0;
 static u16 MemMaxAlo = 0;
 static u16 MemFree = MEM_HEAP;
@@ -31,7 +31,7 @@ static os_sem_t *MemSem;
 #if (MEM_DEBUG == 1)
 static void DMem_DebugInit(void)
 {
-  memset(TheHeap, MEM_FREE, sizeof(TheHeap));
+  memset(TheHeap, DMEM_FREE, sizeof(TheHeap));
   MemAlo = 0;
   MemMaxAlo = 0;
   MemAloFailed = 0;
@@ -56,14 +56,14 @@ static void DMem_DebugFree(MemHdr_t *hdr)
 {
   MemAlo -= hdr->Len;
   MemFree += hdr->Len;
-  // set data in block as MEM_FREE
-  memset((u8 *)(hdr + 1), MEM_FREE, (hdr->Len - MEM_HEADER_SIZE));
+  // set data in block as DMEM_FREE
+  memset((u8 *)(hdr + 1), DMEM_FREE, (hdr->Len - MEM_HEADER_SIZE));
 }
 //-----------------------------------------------------------------------------------------------------------
 static void DMem_DebugFreeHeader(MemHdr_t *hdr)
 {
-  // set header of block as MEM_FREE
-  memset((u8 *)hdr, MEM_FREE, MEM_HEADER_SIZE);
+  // set header of block as DMEM_FREE
+  memset((u8 *)hdr, DMEM_FREE, MEM_HEADER_SIZE);
 }
 //-----------------------------------------------------------------------------------------------------------
 u16 DMem_GetAllocSize(void)

@@ -51,7 +51,7 @@ extern "C"
 #define MESSAGE_DEBUG 0
 #endif
 
-// Caution: If MEM_DEBUG is opened, DMem_Free will change the object contents to MEM_FREE('F')
+// Caution: If MEM_DEBUG is opened, DMem_Free will change the object contents to DMEM_FREE('F')
 // Do not use the object directly after it is freed
 #ifndef MEM_DEBUG
 #define MEM_DEBUG 0

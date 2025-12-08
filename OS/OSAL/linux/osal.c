@@ -60,7 +60,7 @@ os_thread_t *os_thread_create(char *name, uint32_t priority, size_t stacksize,
   pthread_attr_init(&attr);
   pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN + stacksize);
 
-  CC_STATIC_ASSERT(_POSIX_THREAD_PRIORITY_SCHEDULING > 0);
+  // set priority needs root privilege
   struct sched_param param = {.sched_priority = priority};
   pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
   pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
@@ -79,7 +79,7 @@ os_thread_t *os_thread_create(char *name, uint32_t priority, size_t stacksize,
 //-----------------------------------------------------------------------------------------------------------
 void os_thread_destroy(os_thread_t *thread)
 {
-  pthread_cancel(thread);
+  pthread_cancel((pthread_t)thread);
 }
 //-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)
@@ -92,7 +92,6 @@ os_mutex_t *os_mutex_create(void)
   if (mutex == NULL)
     return NULL;
 
-  CC_STATIC_ASSERT(_POSIX_THREAD_PRIO_INHERIT > 0);
   pthread_mutexattr_init(&mattr);
   pthread_mutexattr_setprotocol(&mattr, PTHREAD_PRIO_INHERIT);
   pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
@@ -151,7 +150,7 @@ bool os_sem_wait(os_sem_t *sem, uint32_t ms)
 {
   struct timespec ts;
   int             error = 0;
-  uint64_t        nsec = (uint64_t)time * 1000 * 1000;
+  uint64_t        nsec = (uint64_t)ms * 1000 * 1000;
 
   clock_gettime(CLOCK_MONOTONIC, &ts);
   nsec += ts.tv_nsec;
@@ -165,7 +164,7 @@ bool os_sem_wait(os_sem_t *sem, uint32_t ms)
   pthread_mutex_lock(&sem->mutex);
   while (sem->count == 0)
   {
-    if (time != OS_WAIT_FOREVER)
+    if (ms != OS_WAIT_FOREVER)
     {
       error = pthread_cond_timedwait(&sem->cond, &sem->mutex, &ts);
       assert(error != EINVAL);
@@ -482,7 +481,7 @@ static void os_timer_thread(void *arg)
   sigaddset(&sigset, SIGALRM);
 
   tmo.tv_sec = 0;
-  tmo.tv_nsec = 500 * 1000 * 1000;
+  tmo.tv_nsec = 1000 * timer->us;
 
   while (!timer->exit)
   {

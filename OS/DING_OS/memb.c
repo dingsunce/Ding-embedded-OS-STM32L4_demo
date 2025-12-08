@@ -46,8 +46,8 @@ s8 Memb_Free(Memb_t *m, void *ptr)
   if (ptr < m->Mem || ptr > (void *)((u8 *)m->Mem + (m->Num * m->Size)))
     return -1;
 
-  u16 index = (u16)(((u32)ptr - (u32)m->Mem) / m->Size);
-  u16 offset = (u16)(((u32)ptr - (u32)m->Mem) % m->Size);
+  u16 index = (u16)(((uintptr_t)ptr - (uintptr_t)m->Mem) / m->Size);
+  u16 offset = (u16)(((uintptr_t)ptr - (uintptr_t)m->Mem) % m->Size);
   if (offset != 0)
     return -1;
 
@@ -74,8 +74,8 @@ bool Memb_InMem(Memb_t *m, void *ptr)
   if (ptr < m->Mem || ptr > (void *)((u8 *)m->Mem + (m->Num * m->Size)))
     return false;
 
-  u16 index = (u16)(((u32)ptr - (u32)m->Mem) / m->Size);
-  u16 offset = (u16)(((u32)ptr - (u32)m->Mem) % m->Size);
+  u16 index = (u16)(((uintptr_t)ptr - (uintptr_t)m->Mem) / m->Size);
+  u16 offset = (u16)(((uintptr_t)ptr - (uintptr_t)m->Mem) % m->Size);
   if (offset != 0)
     return false;
 
