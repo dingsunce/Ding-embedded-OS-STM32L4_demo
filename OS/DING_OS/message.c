@@ -42,37 +42,55 @@ static void           InsertToTimerTable(MsgTimer_t *timer);
 static os_sem_t    *MsgPendingSem;
 static os_sem_t    *MsgListSem;
 static os_thread_t *MsgThread;
+static bool         MsgRunning = false;
 //-----------------------------------------------------------------------------------------------------------
-static void Msg_Thread(void *arg)
+static os_return_t Msg_Thread(void *arg)
 {
-  while (1)
+  while (!os_thread_should_stop(MsgThread))
   {
     os_sem_wait(MsgPendingSem, OS_WAIT_FOREVER);
 
     Msg_Run1ms();
+  }
+
+  OS_RETURN(MsgThread);
+}
+//-----------------------------------------------------------------------------------------------------------
+static void InitTimerTable(void)
+{
+  for (u8 i = 0; i < MSG_TIMER_TABLE_SIZE; i++)
+  {
+    DList_Init(&MsgTimerTable[i].TimerList);
   }
 }
 //-----------------------------------------------------------------------------------------------------------
 void Msg_Init(void)
 {
   TimerTick = 0;
-  for (u8 i = 0; i < MSG_TIMER_TABLE_SIZE; i++)
-  {
-    DList_Init(&MsgTimerTable[i].TimerList);
-  }
-
+  InitTimerTable();
   Memb_Init(&MsgTimerMem);
 
   MsgPendingSem = os_sem_create(0);
   MsgListSem = os_sem_create(1);
   MsgThread = os_thread_create("os_msg", D_OS_MSG_PRIO, 256, Msg_Thread, NULL);
-  MsgThread = MsgThread; // remove warning
+
+  MsgRunning = true;
+}
+//-----------------------------------------------------------------------------------------------------------
+void Msg_Exit(void)
+{
+  MsgRunning = false;
+
+  os_thread_destroy(MsgThread);
+
+  os_sem_destroy(MsgPendingSem);
+  os_sem_destroy(MsgListSem);
 }
 //-----------------------------------------------------------------------------------------------------------
 void Msg_PostSem(void)
 {
-  // Ding: SysTick_On would call Msg_PostSem before MsgPendingSem is established
-  if (MsgPendingSem)
+  // interrupt would call Msg_PostSem before the sem is set up, so check the MsgRunning flag
+  if (MsgRunning)
     os_sem_signal(MsgPendingSem);
 }
 //-----------------------------------------------------------------------------------------------------------

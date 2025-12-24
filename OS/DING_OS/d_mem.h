@@ -24,6 +24,7 @@ extern "C"
 #define MEM_MIN_BLOCK_SIZE (MEM_HEADER_SIZE * 2)
 
   void  DMem_Init(void);
+  void  DMem_Exit(void);
   void *DMem_Malloc(u16 size);
   void  DMem_Free(void *ptr);
 

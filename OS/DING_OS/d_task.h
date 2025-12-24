@@ -16,6 +16,7 @@ extern "C"
 #include "process.h"
 
   void    DTask_Init(void);
+  void    DTask_Exit(void);
   OsErr_t DTask_Store(Process_t *process, MsgId_t msgId, MsgArg_t arg);
   void    DTask_Run(void);
   void    DTask_RunAll(void);

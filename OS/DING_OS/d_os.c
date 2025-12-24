@@ -32,3 +32,11 @@ void DOS_Run(void)
   Process_Run();
   DTask_Run();
 }
+//-----------------------------------------------------------------------------------------------------------
+void DOS_Exit(void)
+{
+  DTask_Exit();
+  Process_Exit();
+  Msg_Exit();
+  DMem_Exit();
+}

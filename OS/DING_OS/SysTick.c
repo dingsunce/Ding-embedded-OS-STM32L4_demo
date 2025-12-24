@@ -3,17 +3,14 @@
  * $Author: sunce.ding
  *******************************************************************************/
 #include "SysTick.h"
-#include "s_list.h"
 #include "memb.h"
 #include "message.h"
+#include "s_list.h"
 
 static volatile u8   Tick200us = 0;
 static volatile u32  Tick1ms = 0;
 static volatile bool Tick1msOn = false;
 static volatile u32  Tick200usBackup = 0;
-
-typedef  void  (*HOOK_VOID)(void);
-
 //-----------------------------------------------------------------------------------------------------------
 u32 SysTick_Get1msTicks(void)
 {
@@ -36,7 +33,7 @@ bool SysTick_IsTick1msOn(void)
   return Tick1msOn;
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_ResetTick1msOn()
+void SysTick_ResetTick1msOn(void)
 {
   Tick1msOn = false;
 }
@@ -64,8 +61,8 @@ u32 SysTick_GetDelayMs(u32 nOldTime)
 //-----------------------------------------------------------------------------------------------------------
 void SysTick_DelayMs(u32 delay)
 {
-  uint32_t tickstart = sys_now();
-  uint32_t wait = delay;
+  u32 tickstart = sys_now();
+  u32 wait = delay;
 
   while ((sys_now() - tickstart) < wait)
   {
@@ -82,4 +79,3 @@ void SysTick_Reset(void)
   Tick1ms = 0;
   Tick1msOn = false;
 }
-

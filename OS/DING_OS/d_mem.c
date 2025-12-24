@@ -6,8 +6,7 @@
 #include "osal.h"
 
 #if (MEM_DEBUG == 1)
-#define DMEM_ALLOC 0
-#define DMEM_FREE  'F'
+
 static u16 MemAlo = 0;
 static u16 MemMaxAlo = 0;
 static u16 MemFree = MEM_HEAP;
@@ -15,23 +14,18 @@ static u16 MemAloFailed = 0;
 #endif
 
 // add a null block at the end
-static u8 TheHeap[MEM_HEAP + MEM_HEADER_SIZE]
-#if defined PLATFORM_STM8 && defined _IAR_
-    @0x180; // Avoid IAR alloc in the last position of RAM, which result in damaging stack.
-#else
-    ;
-#endif
+static u8 TheHeap[MEM_HEAP + MEM_HEADER_SIZE];
 
 static MemHdr_t *FirstHeader;
 static MemHdr_t *FreeHeader; // pointer to the lowest free block
 static MemHdr_t *EndHeader;
 
 static os_sem_t *MemSem;
+static bool      MemReady = false;
 //-----------------------------------------------------------------------------------------------------------
 #if (MEM_DEBUG == 1)
 static void DMem_DebugInit(void)
 {
-  memset(TheHeap, DMEM_FREE, sizeof(TheHeap));
   MemAlo = 0;
   MemMaxAlo = 0;
   MemAloFailed = 0;
@@ -56,14 +50,6 @@ static void DMem_DebugFree(MemHdr_t *hdr)
 {
   MemAlo -= hdr->Len;
   MemFree += hdr->Len;
-  // set data in block as DMEM_FREE
-  memset((u8 *)(hdr + 1), DMEM_FREE, (hdr->Len - MEM_HEADER_SIZE));
-}
-//-----------------------------------------------------------------------------------------------------------
-static void DMem_DebugFreeHeader(MemHdr_t *hdr)
-{
-  // set header of block as DMEM_FREE
-  memset((u8 *)hdr, DMEM_FREE, MEM_HEADER_SIZE);
 }
 //-----------------------------------------------------------------------------------------------------------
 u16 DMem_GetAllocSize(void)
@@ -79,9 +65,17 @@ u16 DMem_GetFreeSize(void)
 //-----------------------------------------------------------------------------------------------------------
 void DMem_Init(void)
 {
+  // DMem_Init can be called multiple times, but only the first call is effective
+  if (MemReady)
+    return;
+
 #if (MEM_DEBUG == 1)
   DMem_DebugInit();
 #endif
+
+  MemReady = false;
+
+  memset(TheHeap, 0, sizeof(TheHeap));
 
   FirstHeader = (MemHdr_t *)TheHeap;
   FirstHeader->Len = MEM_HEAP;
@@ -97,6 +91,14 @@ void DMem_Init(void)
   FreeHeader = FirstHeader;
 
   MemSem = os_sem_create(1);
+
+  MemReady = true;
+}
+//-----------------------------------------------------------------------------------------------------------
+void DMem_Exit(void)
+{
+  os_sem_destroy(MemSem);
+  MemReady = false;
 }
 //-----------------------------------------------------------------------------------------------------------
 static void DMem_SplitBlock(MemHdr_t *hdr, u16 blockSize)
@@ -145,7 +147,12 @@ void *DMem_Malloc(u16 size)
   if (size == 0)
     return NULL;
 
-  os_sem_wait(MemSem, OS_WAIT_FOREVER);
+  /*
+    DMem_Init may use DMem_Malloc to allocate memory for MemSem
+    at that time MemReady is not ready
+  */
+  if (MemReady)
+    os_sem_wait(MemSem, OS_WAIT_FOREVER);
 
   while (hdr != EndHeader)
   {
@@ -161,7 +168,8 @@ void *DMem_Malloc(u16 size)
     DMem_DebugAllocateFailed();
 #endif
 
-    os_sem_signal(MemSem);
+    if (MemReady)
+      os_sem_signal(MemSem);
 
     return NULL;
   }
@@ -177,7 +185,8 @@ void *DMem_Malloc(u16 size)
 
   hdr++;
 
-  os_sem_signal(MemSem);
+  if (MemReady)
+    os_sem_signal(MemSem);
 
   return (void *)hdr;
 }
@@ -190,9 +199,7 @@ static void DMem_CoalesceBlock(MemHdr_t *hdr)
   if (nextHdr != hdr && nextHdr->InUse == false)
   {
     curHdr->Len = curHdr->Len + nextHdr->Len;
-#if (MEM_DEBUG == 1)
-    DMem_DebugFreeHeader(nextHdr);
-#endif
+
     nextHdr = (MemHdr_t *)((u8 *)curHdr + curHdr->Len);
     nextHdr->PreLen = curHdr->Len;
   }
@@ -200,9 +207,7 @@ static void DMem_CoalesceBlock(MemHdr_t *hdr)
   if (preHdr != hdr && preHdr->InUse == false)
   {
     preHdr->Len = preHdr->Len + curHdr->Len;
-#if (MEM_DEBUG == 1)
-    DMem_DebugFreeHeader(curHdr);
-#endif
+
     nextHdr->PreLen = preHdr->Len;
   }
 }
@@ -212,7 +217,8 @@ void DMem_Free(void *ptr)
   if ((u8 *)ptr < (u8 *)FirstHeader || (u8 *)ptr >= (u8 *)EndHeader)
     return;
 
-  os_sem_wait(MemSem, OS_WAIT_FOREVER);
+  if (MemReady)
+    os_sem_wait(MemSem, OS_WAIT_FOREVER);
 
   MemHdr_t *hdr = (MemHdr_t *)ptr - 1;
   hdr->InUse = false;
@@ -226,5 +232,6 @@ void DMem_Free(void *ptr)
 
   DMem_CoalesceBlock(hdr);
 
-  os_sem_signal(MemSem);
+  if (MemReady)
+    os_sem_signal(MemSem);
 }

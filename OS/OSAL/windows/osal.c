@@ -3,25 +3,65 @@
  * $Author: sunce.ding
  *******************************************************************************/
 #include "osal.h"
+#include "d_mem.h"
 
-#define URESOLUTION 10
+#define MS_PER_SECOND (1000)
+#define NS_PER_MS     (1000 * 1000)
+#define NS_PER_SECOND (1000 * 1000 * 1000)
+
+#define URESOLUTION 1 // 1 ms resolution
 //-----------------------------------------------------------------------------------------------------------
 void os_init(void)
 {
+  DMem_Init();
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_start(void)
 {
 }
 //-----------------------------------------------------------------------------------------------------------
-void *os_malloc(size_t size)
+void *os_malloc(u16 size)
 {
-  return malloc(size);
+  return DMem_Malloc(size);
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_free(void *ptr)
 {
-  free(ptr);
+  DMem_Free(ptr);
+}
+//-----------------------------------------------------------------------------------------------------------
+os_thread_t *os_thread_create(char *name, u16 priority, u16 stacksize, os_entry_t entry, void *arg)
+{
+  os_thread_t *thread = os_malloc(sizeof(*thread));
+  if (thread == NULL)
+    return NULL;
+
+  HANDLE handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)entry, (LPVOID)arg, 0, NULL);
+  if (handle == NULL)
+  {
+    os_free(thread);
+    return NULL;
+  }
+
+  thread->handle = handle;
+  thread->should_stop = FALSE;
+
+  if (priority < 5)
+    SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL);
+  else if (priority >= 15)
+    SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL);
+
+  return thread;
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_thread_destroy(os_thread_t *thread)
+{
+  thread->should_stop = TRUE;
+}
+//-----------------------------------------------------------------------------------------------------------
+bool os_thread_should_stop(os_thread_t *thread)
+{
+  return thread->should_stop;
 }
 //-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)
@@ -44,75 +84,11 @@ void os_mutex_destroy(os_mutex_t *mutex)
   CloseHandle(mutex);
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_usleep(uint32_t usec)
-{
-  Sleep(usec / 1000);
-}
-//-----------------------------------------------------------------------------------------------------------
-os_thread_t *os_thread_create(char *name, uint32_t priority, size_t stacksize,
-                              void (*entry)(void *arg), void *arg)
-{
-  HANDLE handle;
-  handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)entry, (LPVOID)arg, 0, NULL);
-
-  if (priority < 5)
-    SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL);
-  else if (priority >= 15)
-    SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL);
-
-  return handle;
-}
-//-----------------------------------------------------------------------------------------------------------
-void os_thread_destroy(os_thread_t *thread)
-{
-  DWORD dwExitCode = 0;
-  TerminateThread(thread, dwExitCode);
-}
-//-----------------------------------------------------------------------------------------------------------
-static uint64_t os_get_frequency_tick(void)
-{
-  static uint64_t frequency;
-  if (frequency == 0)
-  {
-    LARGE_INTEGER performanceFrequency;
-    timeBeginPeriod(URESOLUTION);
-    QueryPerformanceFrequency(&performanceFrequency);
-    frequency = performanceFrequency.QuadPart;
-  }
-  return frequency;
-}
-//-----------------------------------------------------------------------------------------------------------
-uint32_t os_get_current_time_us(void)
-{
-  LARGE_INTEGER currentCount;
-  uint64_t      currentTime;
-  QueryPerformanceCounter(&currentCount);
-  currentTime = 1000000 * currentCount.QuadPart / os_get_frequency_tick();
-  return (uint32_t)(currentTime & UINT32_MAX);
-}
-//-----------------------------------------------------------------------------------------------------------
-os_tick_t os_tick_current(void)
-{
-  LARGE_INTEGER currentCount;
-  QueryPerformanceCounter(&currentCount);
-  return currentCount.QuadPart;
-}
-//-----------------------------------------------------------------------------------------------------------
-os_tick_t os_tick_from_us(uint32_t us)
-{
-  return os_get_frequency_tick() * us / 1000000;
-}
-//-----------------------------------------------------------------------------------------------------------
-void os_tick_sleep(os_tick_t tick)
-{
-  Sleep((DWORD)(1000u * tick / os_get_frequency_tick()));
-}
-//-----------------------------------------------------------------------------------------------------------
-os_sem_t *os_sem_create(size_t count)
+os_sem_t *os_sem_create(u16 count)
 {
   os_sem_t *sem;
 
-  sem = (os_sem_t *)malloc(sizeof(*sem));
+  sem = (os_sem_t *)os_malloc(sizeof(*sem));
 
   InitializeConditionVariable(&sem->condition);
   InitializeCriticalSection(&sem->lock);
@@ -121,14 +97,13 @@ os_sem_t *os_sem_create(size_t count)
   return sem;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_sem_wait(os_sem_t *sem, uint32_t ms)
+bool os_sem_wait(os_sem_t *sem, u32 ms)
 {
   BOOL success = TRUE;
 
   EnterCriticalSection(&sem->lock);
   while (sem->count == 0)
   {
-    /* FIXME - decrease timeout if woken early */
     success = SleepConditionVariableCS(&sem->condition, &sem->lock, ms);
     if (!success && GetLastError() == ERROR_TIMEOUT)
       goto timeout;
@@ -138,7 +113,7 @@ bool os_sem_wait(os_sem_t *sem, uint32_t ms)
 
 timeout:
   LeaveCriticalSection(&sem->lock);
-  return !success;
+  return success;
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_sem_signal(os_sem_t *sem)
@@ -151,15 +126,16 @@ void os_sem_signal(os_sem_t *sem)
 //-----------------------------------------------------------------------------------------------------------
 void os_sem_destroy(os_sem_t *sem)
 {
-  EnterCriticalSection(&sem->lock);
-  free(sem);
+  WakeAllConditionVariable(&sem->condition);
+
+  os_free(sem);
 }
 //-----------------------------------------------------------------------------------------------------------
 os_event_t *os_event_create(void)
 {
   os_event_t *event;
 
-  event = (os_event_t *)malloc(sizeof(*event));
+  event = (os_event_t *)os_malloc(sizeof(*event));
 
   InitializeConditionVariable(&event->condition);
   InitializeCriticalSection(&event->lock);
@@ -168,24 +144,25 @@ os_event_t *os_event_create(void)
   return event;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_event_wait(os_event_t *event, uint32_t mask, uint32_t *value, uint32_t ms)
+bool os_event_wait(os_event_t *event, u32 mask, u32 *value, u32 ms)
 {
   BOOL success = TRUE;
 
   EnterCriticalSection(&event->lock);
   while ((event->flags & mask) == 0)
   {
-    /* FIXME - decrease timeout if woken early */
     success = SleepConditionVariableCS(&event->condition, &event->lock, ms);
     if (!success && GetLastError() == ERROR_TIMEOUT)
       break;
   }
+
   *value = event->flags & mask;
   LeaveCriticalSection(&event->lock);
-  return !success;
+
+  return success;
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_event_set(os_event_t *event, uint32_t value)
+void os_event_set(os_event_t *event, u32 value)
 {
   EnterCriticalSection(&event->lock);
   event->flags |= value;
@@ -193,7 +170,7 @@ void os_event_set(os_event_t *event, uint32_t value)
   WakeAllConditionVariable(&event->condition);
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_event_clr(os_event_t *event, uint32_t value)
+void os_event_clr(os_event_t *event, u32 value)
 {
   EnterCriticalSection(&event->lock);
   event->flags &= ~value;
@@ -202,15 +179,16 @@ void os_event_clr(os_event_t *event, uint32_t value)
 //-----------------------------------------------------------------------------------------------------------
 void os_event_destroy(os_event_t *event)
 {
-  EnterCriticalSection(&event->lock);
-  free(event);
+  WakeAllConditionVariable(&event->condition);
+
+  os_free(event);
 }
 //-----------------------------------------------------------------------------------------------------------
-os_mbox_t *os_mbox_create(size_t size)
+os_mbox_t *os_mbox_create(u32 size)
 {
   os_mbox_t *mbox;
 
-  mbox = (os_mbox_t *)malloc(sizeof(*mbox) + size * sizeof(void *));
+  mbox = (os_mbox_t *)os_malloc(sizeof(*mbox) + size * sizeof(void *));
 
   InitializeConditionVariable(&mbox->condition);
   InitializeCriticalSection(&mbox->lock);
@@ -223,14 +201,13 @@ os_mbox_t *os_mbox_create(size_t size)
   return mbox;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_mbox_fetch(os_mbox_t *mbox, void **msg, uint32_t ms)
+bool os_mbox_fetch(os_mbox_t *mbox, void **msg, u32 ms)
 {
   BOOL success = TRUE;
 
   EnterCriticalSection(&mbox->lock);
   while (mbox->count == 0)
   {
-    /* FIXME - decrease timeout if woken early */
     success = SleepConditionVariableCS(&mbox->condition, &mbox->lock, ms);
     if (!success && GetLastError() == ERROR_TIMEOUT)
       goto timeout;
@@ -246,17 +223,16 @@ timeout:
   LeaveCriticalSection(&mbox->lock);
   WakeAllConditionVariable(&mbox->condition);
 
-  return !success;
+  return success;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_mbox_post(os_mbox_t *mbox, void *msg, uint32_t ms)
+bool os_mbox_post(os_mbox_t *mbox, void *msg, u32 ms)
 {
   BOOL success = TRUE;
 
   EnterCriticalSection(&mbox->lock);
   while (mbox->count == mbox->size)
   {
-    /* FIXME - decrease timeout if woken early */
     success = SleepConditionVariableCS(&mbox->condition, &mbox->lock, ms);
     if (!success && GetLastError() == ERROR_TIMEOUT)
       goto timeout;
@@ -272,13 +248,58 @@ timeout:
   LeaveCriticalSection(&mbox->lock);
   WakeAllConditionVariable(&mbox->condition);
 
-  return !success;
+  return success;
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_mbox_destroy(os_mbox_t *mbox)
 {
-  EnterCriticalSection(&mbox->lock);
-  free(mbox);
+  WakeAllConditionVariable(&mbox->condition);
+
+  os_free(mbox);
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_msleep(u32 ms)
+{
+  Sleep(ms);
+}
+//-----------------------------------------------------------------------------------------------------------
+static uint64_t os_get_ticks_per_ms(void)
+{
+  static uint64_t ticksPerMs;
+  if (ticksPerMs == 0)
+  {
+    LARGE_INTEGER performanceFrequency;
+    QueryPerformanceFrequency(&performanceFrequency);
+    // QuadPart is tick number per second
+    ticksPerMs = performanceFrequency.QuadPart / 1000;
+
+    return ticksPerMs;
+  }
+
+  return ticksPerMs;
+}
+//-----------------------------------------------------------------------------------------------------------
+os_tick_t os_tick_current(void)
+{
+  LARGE_INTEGER currentCount;
+  QueryPerformanceCounter(&currentCount);
+
+  return currentCount.QuadPart;
+}
+//-----------------------------------------------------------------------------------------------------------
+u32 os_ms_current(void)
+{
+  return (u32)(os_tick_current() / os_get_ticks_per_ms());
+}
+//-----------------------------------------------------------------------------------------------------------
+os_tick_t os_tick_from_ms(u32 ms)
+{
+  return os_get_ticks_per_ms() * ms;
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_tick_sleep(os_tick_t tick)
+{
+  os_msleep(tick / os_get_ticks_per_ms());
 }
 //-----------------------------------------------------------------------------------------------------------
 static VOID CALLBACK timer_callback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1,
@@ -290,31 +311,30 @@ static VOID CALLBACK timer_callback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, 
     timer->fn(timer, timer->arg);
 }
 //-----------------------------------------------------------------------------------------------------------
-os_timer_t *os_timer_create(uint32_t us, void (*fn)(os_timer_t *, void *arg), void *arg,
-                            bool oneshot)
+os_timer_t *os_timer_create(u32 ms, void (*fn)(os_timer_t *, void *arg), void *arg, bool oneshot)
 {
   os_timer_t *timer;
 
-  timer = (os_timer_t *)malloc(sizeof(*timer));
+  timer = (os_timer_t *)os_malloc(sizeof(*timer));
 
   timer->fn = fn;
   timer->arg = arg;
-  timer->us = us;
+  timer->ms = ms;
   timer->oneshot = oneshot;
 
   return timer;
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_timer_set(os_timer_t *timer, uint32_t us)
+void os_timer_set(os_timer_t *timer, u32 ms)
 {
-  timer->us = us;
+  timer->ms = ms;
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_timer_start(os_timer_t *timer)
 {
   timeBeginPeriod(URESOLUTION);
 
-  timer->timerID = timeSetEvent(timer->us / 1000, URESOLUTION, timer_callback, (DWORD_PTR)timer,
+  timer->timerID = timeSetEvent(timer->ms, URESOLUTION, timer_callback, (DWORD_PTR)timer,
                                 (timer->oneshot) ? TIME_ONESHOT : TIME_PERIODIC);
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -327,5 +347,5 @@ void os_timer_stop(os_timer_t *timer)
 //-----------------------------------------------------------------------------------------------------------
 void os_timer_destroy(os_timer_t *timer)
 {
-  free(timer);
+  os_free(timer);
 }

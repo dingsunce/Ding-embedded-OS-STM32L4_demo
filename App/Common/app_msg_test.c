@@ -83,5 +83,5 @@ void app_msg_test_start(void)
 
   Msg_SendInstant(&TimerProcess, TIMER_INSTANT, NULL);
   Msg_SendLater(&TimerProcess, TIMER_LATER, NULL, 10);
-  Msg_SendCycle(&TimerProcess, TIMER_CYCLE, NULL, 1000);
+  Msg_SendCycle(&TimerProcess, TIMER_CYCLE, NULL, 3000);
 }

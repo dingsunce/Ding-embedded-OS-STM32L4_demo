@@ -87,6 +87,8 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 //-----------------------------------------------------------------------------------------------------------
+static os_thread_t *TaskStartThread;
+
 void App_TaskStart(void *p_arg)
 {
   (void)p_arg;
@@ -103,13 +105,15 @@ void App_TaskStart(void *p_arg)
   app_pic_test_start();
 
 
-  while (1)
+  while (!os_thread_should_stop(TaskStartThread))
   {
     /* Task body, always written as an infinite loop.           */
-    os_usleep(1000000);
+    os_msleep(1000);
 
     Wdg_Clear();
   }
+  
+  OS_RETURN(TaskStartThread);
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_tick_set_hook(void)
@@ -175,7 +179,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   os_init();
-  os_thread_create("os_task", 3, 256, App_TaskStart, NULL);
+  TaskStartThread = os_thread_create("os_task", 3, 256, App_TaskStart, NULL);
   os_tick_set_hook();
 
   os_start(); // start first thread if using preemptive os, never return

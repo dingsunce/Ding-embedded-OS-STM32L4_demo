@@ -12,12 +12,12 @@ extern "C"
 
 #include "d_os.h"
 #include "define.h"
-  
+
   void SysTick_Init(void);
 
   u32  SysTick_Get1msTicks(void);
   bool SysTick_IsTick1msOn(void);
-  void SysTick_ResetTick1msOn();
+  void SysTick_ResetTick1msOn(void);
 
   void SysTick_On(void);
   u32  sys_now(void);
@@ -27,7 +27,6 @@ extern "C"
   void SysTick_Reset(void);
   void SysTick_DelayMs(u32 delay);
 
-  
 #ifdef __cplusplus
 }
 #endif

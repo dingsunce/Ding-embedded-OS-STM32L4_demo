@@ -10,39 +10,12 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
+#include "osal.h"
 
-  typedef unsigned long long s64;
-  typedef int32_t            s32;
-  typedef int16_t            s16;
-  typedef int8_t             s8;
-  typedef long long          u64;
-  typedef uint32_t           u32;
-  typedef uint16_t           u16;
-  typedef uint8_t            u8;
-
-#if (UPPERCASE_TYPE_DEFINE == 0)
-  typedef uint32_t ULONG;
-  typedef uint16_t UINT;
-  typedef int16_t  INT;
-  typedef uint8_t  UCHAR;
-#endif
-
-#if (BOOL_DEFINE == 0)
-  typedef enum
-  {
-    FALSE = 0,
-    TRUE = !FALSE
-  } BOOL;
-#endif
- 
 #ifndef NULL
 #define NULL 0
 #endif
-  
+
   typedef u16   MsgId_t;    // Message id type.
   typedef u32   MsgDelay_t; // Message delay type.
   typedef void *MsgArg_t;   // Message argument type.

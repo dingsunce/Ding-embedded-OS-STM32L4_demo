@@ -3,3 +3,6 @@
 .idea/
 Output/
 test/
+*.o
+*.cmd
+*.mod

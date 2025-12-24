@@ -11,9 +11,9 @@ extern "C"
 #endif
 
 #include "d_os.h"
+#include "d_task.h"
 #include "define.h"
 #include "error.h"
-#include "d_task.h"
 
 #define SYS_MSG_START_PROGRESS   0xf000
 #define SYS_MSG_POLL_PROCESS     0xf001
@@ -32,6 +32,7 @@ extern "C"
 #define MSG_NO_ARG NULL
 
   void    Msg_Init(void);
+  void    Msg_Exit(void);
   void    Msg_Run1ms(void);
   void    Msg_PostSem(void);
   void    Msg_Cancel(Process_t *process, MsgId_t msgId);

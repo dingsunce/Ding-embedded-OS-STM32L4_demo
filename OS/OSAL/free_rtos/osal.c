@@ -20,7 +20,7 @@ void os_start(void)
   vTaskStartScheduler();
 }
 //-----------------------------------------------------------------------------------------------------------
-void *os_malloc(size_t size)
+void *os_malloc(u16 size)
 {
   return pvPortMalloc(size);
 }
@@ -30,8 +30,7 @@ void os_free(void *ptr)
   vPortFree(ptr);
 }
 //-----------------------------------------------------------------------------------------------------------
-os_thread_t *os_thread_create(char *name, uint32_t priority, size_t stacksize,
-                              void (*entry)(void *arg), void *arg)
+os_thread_t *os_thread_create(char *name, u16 priority, u16 stacksize, os_entry_t entry, void *arg)
 {
   TaskHandle_t xHandle = NULL;
 
@@ -45,6 +44,11 @@ os_thread_t *os_thread_create(char *name, uint32_t priority, size_t stacksize,
 void os_thread_destroy(os_thread_t *thread)
 {
   vTaskDelete((TaskHandle_t)thread);
+}
+//-----------------------------------------------------------------------------------------------------------
+bool os_thread_should_stop(os_thread_t *thread)
+{
+  return false;
 }
 //-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)
@@ -79,38 +83,13 @@ void os_mutex_destroy(os_mutex_t *mutex)
   vSemaphoreDelete((SemaphoreHandle_t)mutex);
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_usleep(uint32_t us)
-{
-  vTaskDelay((us / portTICK_PERIOD_MS) / 1000);
-}
-//-----------------------------------------------------------------------------------------------------------
-uint32_t os_get_current_time_us(void)
-{
-  return 1000 * (xTaskGetTickCount() / portTICK_PERIOD_MS);
-}
-//-----------------------------------------------------------------------------------------------------------
-os_tick_t os_tick_current(void)
-{
-  return xTaskGetTickCount();
-}
-//-----------------------------------------------------------------------------------------------------------
-os_tick_t os_tick_from_us(uint32_t us)
-{
-  return us / (1000u * portTICK_PERIOD_MS);
-}
-//-----------------------------------------------------------------------------------------------------------
-void os_tick_sleep(os_tick_t tick)
-{
-  vTaskDelay(tick);
-}
-//-----------------------------------------------------------------------------------------------------------
-os_sem_t *os_sem_create(size_t count)
+os_sem_t *os_sem_create(u16 count)
 {
   SemaphoreHandle_t handle = xSemaphoreCreateCounting(UINT32_MAX, count);
   return (os_sem_t *)handle;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_sem_wait(os_sem_t *sem, uint32_t ms)
+bool os_sem_wait(os_sem_t *sem, u32 ms)
 {
   if (xPortIsInsideInterrupt())
     return false;
@@ -145,20 +124,21 @@ os_event_t *os_event_create(void)
   return (os_event_t *)handle;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_event_wait(os_event_t *event, uint32_t mask, uint32_t *value, uint32_t ms)
+bool os_event_wait(os_event_t *event, u32 mask, u32 *value, u32 ms)
 {
   *value = xEventGroupWaitBits((EventGroupHandle_t)event, mask, pdFALSE, pdFALSE, TM_TO_TICK(ms));
 
   *value &= mask;
-  return *value == 0;
+
+  return *value != 0;
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_event_set(os_event_t *event, uint32_t value)
+void os_event_set(os_event_t *event, u32 value)
 {
   xEventGroupSetBits((EventGroupHandle_t)event, value);
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_event_clr(os_event_t *event, uint32_t value)
+void os_event_clr(os_event_t *event, u32 value)
 {
   xEventGroupClearBits((EventGroupHandle_t)event, value);
 }
@@ -168,13 +148,13 @@ void os_event_destroy(os_event_t *event)
   vEventGroupDelete((EventGroupHandle_t)event);
 }
 //-----------------------------------------------------------------------------------------------------------
-os_mbox_t *os_mbox_create(size_t size)
+os_mbox_t *os_mbox_create(u32 size)
 {
   QueueHandle_t handle = xQueueCreate(size, sizeof(void *));
   return (os_mbox_t *)handle;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_mbox_fetch(os_mbox_t *mbox, void **msg, uint32_t ms)
+bool os_mbox_fetch(os_mbox_t *mbox, void **msg, u32 ms)
 {
   BaseType_t success;
 
@@ -188,10 +168,10 @@ bool os_mbox_fetch(os_mbox_t *mbox, void **msg, uint32_t ms)
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
   }
 
-  return success != pdTRUE;
+  return success == pdTRUE;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool os_mbox_post(os_mbox_t *mbox, void *msg, uint32_t ms)
+bool os_mbox_post(os_mbox_t *mbox, void *msg, u32 ms)
 {
   BaseType_t success;
 
@@ -205,12 +185,37 @@ bool os_mbox_post(os_mbox_t *mbox, void *msg, uint32_t ms)
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
   }
 
-  return success != pdTRUE;
+  return success == pdTRUE;
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_mbox_destroy(os_mbox_t *mbox)
 {
   vQueueDelete((QueueHandle_t)mbox);
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_msleep(u32 ms)
+{
+  vTaskDelay(ms / portTICK_PERIOD_MS);
+}
+//-----------------------------------------------------------------------------------------------------------
+u32 os_ms_current(void)
+{
+  return xTaskGetTickCount() / portTICK_PERIOD_MS;
+}
+//-----------------------------------------------------------------------------------------------------------
+os_tick_t os_tick_current(void)
+{
+  return xTaskGetTickCount();
+}
+//-----------------------------------------------------------------------------------------------------------
+os_tick_t os_tick_from_ms(u32 ms)
+{
+  return ms / portTICK_PERIOD_MS;
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_tick_sleep(os_tick_t tick)
+{
+  vTaskDelay(tick);
 }
 //-----------------------------------------------------------------------------------------------------------
 static void os_timer_callback(TimerHandle_t xTimer)
@@ -221,8 +226,7 @@ static void os_timer_callback(TimerHandle_t xTimer)
     timer->fn(timer, timer->arg);
 }
 //-----------------------------------------------------------------------------------------------------------
-os_timer_t *os_timer_create(uint32_t us, void (*fn)(os_timer_t *, void *arg), void *arg,
-                            bool oneshot)
+os_timer_t *os_timer_create(u32 ms, void (*fn)(os_timer_t *, void *arg), void *arg, bool oneshot)
 {
   os_timer_t *timer;
 
@@ -232,10 +236,10 @@ os_timer_t *os_timer_create(uint32_t us, void (*fn)(os_timer_t *, void *arg), vo
 
   timer->fn = fn;
   timer->arg = arg;
-  timer->us = us;
+  timer->ms = ms;
 
-  timer->handle = xTimerCreate("os_timer", (us / portTICK_PERIOD_MS) / 1000,
-                               oneshot ? pdFALSE : pdTRUE, timer, os_timer_callback);
+  timer->handle = xTimerCreate("os_timer", ms / portTICK_PERIOD_MS, oneshot ? pdFALSE : pdTRUE,
+                               timer, os_timer_callback);
 
   if (timer->handle == NULL)
   {
@@ -246,15 +250,15 @@ os_timer_t *os_timer_create(uint32_t us, void (*fn)(os_timer_t *, void *arg), vo
   return timer;
 }
 //-----------------------------------------------------------------------------------------------------------
-void os_timer_set(os_timer_t *timer, uint32_t us)
+void os_timer_set(os_timer_t *timer, u32 ms)
 {
-  timer->us = us;
+  timer->ms = ms;
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_timer_start(os_timer_t *timer)
 {
   /* Start timer by updating the period */
-  xTimerChangePeriod(timer->handle, (timer->us / portTICK_PERIOD_MS) / 1000, portMAX_DELAY);
+  xTimerChangePeriod(timer->handle, timer->ms / portTICK_PERIOD_MS, portMAX_DELAY);
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_timer_stop(os_timer_t *timer)

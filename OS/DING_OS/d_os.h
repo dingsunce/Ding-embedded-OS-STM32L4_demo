@@ -14,16 +14,16 @@ extern "C"
 #include "osal.h"
 
   void DOS_Init(void);
+  void DOS_Exit(void);
   void DOS_Run1ms(void);
   void DOS_Run(void);
 
-#define ContainerOf(ptr, type, member)                                                             \
-  ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
+#define ContainerOf(ptr, type, member) ((type *)((char *)(ptr) - (uintptr_t)(&((type *)0)->member)))
 
-#define D_OS_VERSION 0x30
+#define D_OS_VERSION 0x10
 
 #ifndef MEM_HEAP
-#define MEM_HEAP 5000
+#define MEM_HEAP 20480
 #endif
 
 #if (MEM_HEAP & 0x80000)
@@ -36,7 +36,7 @@ extern "C"
 
 // MSG_TIMER_TABLE_SIZE is recommended to be a prime
 #ifndef MSG_TIMER_TABLE_SIZE
-#define MSG_TIMER_TABLE_SIZE 13
+#define MSG_TIMER_TABLE_SIZE 17
 #endif
 
 #ifndef MSG_TIMER_NUM
@@ -51,8 +51,6 @@ extern "C"
 #define MESSAGE_DEBUG 0
 #endif
 
-// Caution: If MEM_DEBUG is opened, DMem_Free will change the object contents to DMEM_FREE('F')
-// Do not use the object directly after it is freed
 #ifndef MEM_DEBUG
 #define MEM_DEBUG 0
 #endif

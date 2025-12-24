@@ -16,19 +16,19 @@
                 <debug>1</debug>
                 <option>
                     <name>BrowseInfoPath</name>
-                    <state>demo_free_rtos\BrowseInfo</state>
+                    <state>../../Output/demo_free_rtos\BrowseInfo</state>
                 </option>
                 <option>
                     <name>ExePath</name>
-                    <state>demo_free_rtos\Exe</state>
+                    <state>../../Output/demo_free_rtos\Exe</state>
                 </option>
                 <option>
                     <name>ObjPath</name>
-                    <state>demo_free_rtos\Obj</state>
+                    <state>../../Output/demo_free_rtos\Obj</state>
                 </option>
                 <option>
                     <name>ListPath</name>
-                    <state>demo_free_rtos\List</state>
+                    <state>../../Output/demo_free_rtos\List</state>
                 </option>
                 <option>
                     <name>GEndianMode</name>
@@ -201,7 +201,7 @@
                 </option>
                 <option>
                     <name>BuildFilesPath</name>
-                    <state>demo_free_rtos\</state>
+                    <state>../../Output/demo_free_rtos\</state>
                 </option>
                 <option>
                     <name>PointerAuthentication</name>
@@ -1145,19 +1145,19 @@
                 <debug>1</debug>
                 <option>
                     <name>BrowseInfoPath</name>
-                    <state>demo_rt_thread\BrowseInfo</state>
+                    <state>../../Output/demo_rt_thread\BrowseInfo</state>
                 </option>
                 <option>
                     <name>ExePath</name>
-                    <state>demo_rt_thread\Exe</state>
+                    <state>../../Output/demo_rt_thread\Exe</state>
                 </option>
                 <option>
                     <name>ObjPath</name>
-                    <state>demo_rt_thread\Obj</state>
+                    <state>../../Output/demo_rt_thread\Obj</state>
                 </option>
                 <option>
                     <name>ListPath</name>
-                    <state>demo_rt_thread\List</state>
+                    <state>../../Output/demo_rt_thread\List</state>
                 </option>
                 <option>
                     <name>GEndianMode</name>
@@ -1330,7 +1330,7 @@
                 </option>
                 <option>
                     <name>BuildFilesPath</name>
-                    <state>demo_rt_thread\</state>
+                    <state>../../Output/demo_rt_thread\</state>
                 </option>
                 <option>
                     <name>PointerAuthentication</name>
@@ -2271,19 +2271,19 @@
                 <debug>1</debug>
                 <option>
                     <name>BrowseInfoPath</name>
-                    <state>demo_ucos\BrowseInfo</state>
+                    <state>../../Output/demo_ucos\BrowseInfo</state>
                 </option>
                 <option>
                     <name>ExePath</name>
-                    <state>demo_ucos\Exe</state>
+                    <state>../../Output/demo_ucos\Exe</state>
                 </option>
                 <option>
                     <name>ObjPath</name>
-                    <state>demo_ucos\Obj</state>
+                    <state>../../Output/demo_ucos\Obj</state>
                 </option>
                 <option>
                     <name>ListPath</name>
-                    <state>demo_ucos\List</state>
+                    <state>../../Output/demo_ucos\List</state>
                 </option>
                 <option>
                     <name>GEndianMode</name>
@@ -2444,7 +2444,7 @@
                 <option>
                     <name>TrustZoneModes</name>
                     <version>0</version>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OGAarch64Abi</name>
@@ -2456,7 +2456,7 @@
                 </option>
                 <option>
                     <name>BuildFilesPath</name>
-                    <state>demo_ucos\</state>
+                    <state>../../Output/demo_ucos\</state>
                 </option>
                 <option>
                     <name>PointerAuthentication</name>
@@ -3403,19 +3403,19 @@
                 <debug>1</debug>
                 <option>
                     <name>BrowseInfoPath</name>
-                    <state>demo_non_preemptive\BrowseInfo</state>
+                    <state>../../Output/demo_non_preemptive\BrowseInfo</state>
                 </option>
                 <option>
                     <name>ExePath</name>
-                    <state>demo_non_preemptive\Exe</state>
+                    <state>../../Output/demo_non_preemptive\Exe</state>
                 </option>
                 <option>
                     <name>ObjPath</name>
-                    <state>demo_non_preemptive\Obj</state>
+                    <state>../../Output/demo_non_preemptive\Obj</state>
                 </option>
                 <option>
                     <name>ListPath</name>
-                    <state>demo_non_preemptive\List</state>
+                    <state>../../Output/demo_non_preemptive\List</state>
                 </option>
                 <option>
                     <name>GEndianMode</name>
@@ -3588,7 +3588,7 @@
                 </option>
                 <option>
                     <name>BuildFilesPath</name>
-                    <state>demo_non_preemptive\</state>
+                    <state>../../Output/demo_non_preemptive\</state>
                 </option>
                 <option>
                     <name>PointerAuthentication</name>
