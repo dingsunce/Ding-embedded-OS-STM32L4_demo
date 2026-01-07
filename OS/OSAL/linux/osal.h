@@ -16,6 +16,7 @@ extern "C"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
   typedef unsigned long long s64;
@@ -27,14 +28,34 @@ extern "C"
   typedef uint16_t           u16;
   typedef uint8_t            u8;
 
+// linux app can not get a steady 1ms resolution timer, set 10ms as default
+#ifndef OS_TICK_PERIOD_MS
+#define OS_TICK_PERIOD_MS 10
+#endif
+
 // 0 lowest priority ......
 #define OS_INVERTED_PRIORITY 1
 
 #define OS_WAIT_FOREVER 0xFFFFFFFF
 
-  typedef pthread_t       os_thread_t;
+#ifndef OS_DEBUG
+#define OS_DEBUG 0
+#endif
+
+#if OS_DEBUG == 0
+#define OS_PRINT(...)
+#else
+#define OS_PRINT printf
+#endif
+
   typedef pthread_mutex_t os_mutex_t;
   typedef uint64_t        os_tick_t;
+
+  typedef struct os_thread
+  {
+    pthread_t pthread;
+    bool      should_stop;
+  } os_thread_t;
 
   typedef struct os_sem
   {
@@ -88,6 +109,7 @@ extern "C"
                                 void *arg);
   void         os_thread_destroy(os_thread_t *thread);
   bool         os_thread_should_stop(os_thread_t *thread);
+  void         os_thread_wait_for_completion(os_thread_t *thread);
 
   os_mutex_t *os_mutex_create(void);
   void        os_mutex_lock(os_mutex_t *mutex);

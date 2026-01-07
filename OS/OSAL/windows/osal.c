@@ -9,7 +9,7 @@
 #define NS_PER_MS     (1000 * 1000)
 #define NS_PER_SECOND (1000 * 1000 * 1000)
 
-#define URESOLUTION 1 // 1 ms resolution
+#define URESOLUTION OS_TICK_PERIOD_MS // 1 ms resolution
 //-----------------------------------------------------------------------------------------------------------
 void os_init(void)
 {
@@ -36,6 +36,7 @@ os_thread_t *os_thread_create(char *name, u16 priority, u16 stacksize, os_entry_
   if (thread == NULL)
     return NULL;
 
+  thread->should_stop = FALSE;
   HANDLE handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)entry, (LPVOID)arg, 0, NULL);
   if (handle == NULL)
   {
@@ -44,12 +45,24 @@ os_thread_t *os_thread_create(char *name, u16 priority, u16 stacksize, os_entry_
   }
 
   thread->handle = handle;
-  thread->should_stop = FALSE;
 
-  if (priority < 5)
-    SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL);
-  else if (priority >= 15)
-    SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL);
+  /*
+    NORMAL_PRIORITY_CLASS
+
+    THREAD_PRIORITY_IDLE	1
+    THREAD_PRIORITY_LOWEST	6
+    THREAD_PRIORITY_BELOW_NORMAL	7
+    THREAD_PRIORITY_NORMAL	8
+    THREAD_PRIORITY_ABOVE_NORMAL	9
+    THREAD_PRIORITY_HIGHEST	10
+    THREAD_PRIORITY_TIME_CRITICAL	15
+  */
+  if (priority < 6)
+    priority = THREAD_PRIORITY_LOWEST;
+  else if (priority > 10)
+    priority = THREAD_PRIORITY_TIME_CRITICAL;
+
+  SetThreadPriority(handle, priority);
 
   return thread;
 }
@@ -62,6 +75,12 @@ void os_thread_destroy(os_thread_t *thread)
 bool os_thread_should_stop(os_thread_t *thread)
 {
   return thread->should_stop;
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_thread_wait_for_completion(os_thread_t *thread)
+{
+  WaitForSingleObject(thread->handle, INFINITE);
+  CloseHandle(thread->handle);
 }
 //-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)

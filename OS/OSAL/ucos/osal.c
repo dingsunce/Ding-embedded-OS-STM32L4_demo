@@ -15,7 +15,7 @@ static OS_ERR event_err;
 static OS_ERR mbox_err;
 static OS_ERR tick_err;
 static OS_ERR timer_err;
-#define TICK_PERIOD_MS (1000 / OS_CFG_TICK_RATE_HZ)
+
 //-----------------------------------------------------------------------------------------------------------
 void os_init(void)
 {
@@ -80,6 +80,10 @@ bool os_thread_should_stop(os_thread_t *thread)
   return false;
 }
 //-----------------------------------------------------------------------------------------------------------
+void os_thread_wait_for_completion(os_thread_t *thread)
+{
+}
+//-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)
 {
   os_mutex_t *mutex = os_malloc(sizeof(os_mutex_t));
@@ -137,7 +141,7 @@ bool os_sem_wait(os_sem_t *sem, u32 ms)
   if (ms == OS_WAIT_FOREVER)
     OSSemPend(sem, 0, OS_OPT_PEND_BLOCKING, &time_stamp, &sem_err);
   else
-    OSSemPend(sem, ms / TICK_PERIOD_MS, OS_OPT_PEND_BLOCKING, &time_stamp, &sem_err);
+    OSSemPend(sem, ms / OS_TICK_PERIOD_MS, OS_OPT_PEND_BLOCKING, &time_stamp, &sem_err);
 
   if (sem_err != OS_ERR_NONE)
     return false;
@@ -181,7 +185,7 @@ bool os_event_wait(os_event_t *event, u32 mask, u32 *value, u32 ms)
     *value = OSFlagPend(event, mask, 0, OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING,
                         &time_stamp, &event_err);
   else
-    *value = OSFlagPend(event, mask, ms / TICK_PERIOD_MS,
+    *value = OSFlagPend(event, mask, ms / OS_TICK_PERIOD_MS,
                         OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING, &time_stamp, &event_err);
 
   if (event_err != OS_ERR_NONE)
@@ -234,8 +238,8 @@ bool os_mbox_fetch(os_mbox_t *mbox, void **msg, u32 ms)
   if (ms == OS_WAIT_FOREVER)
     *msg = OSQPend(mbox, 0, OS_OPT_PEND_BLOCKING, &msg_size, &time_stamp, &mbox_err);
   else
-    *msg =
-        OSQPend(mbox, ms / TICK_PERIOD_MS, OS_OPT_PEND_BLOCKING, &msg_size, &time_stamp, &mbox_err);
+    *msg = OSQPend(mbox, ms / OS_TICK_PERIOD_MS, OS_OPT_PEND_BLOCKING, &msg_size, &time_stamp,
+                   &mbox_err);
 
   if (mbox_err != OS_ERR_NONE)
     return false;
@@ -262,7 +266,7 @@ void os_mbox_destroy(os_mbox_t *mbox)
 //-----------------------------------------------------------------------------------------------------------
 void os_msleep(u32 ms)
 {
-  OSTimeDly(ms / TICK_PERIOD_MS, OS_OPT_TIME_DLY, &tick_err);
+  OSTimeDly(ms / OS_TICK_PERIOD_MS, OS_OPT_TIME_DLY, &tick_err);
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_tick_sleep(os_tick_t tick)
@@ -277,12 +281,12 @@ os_tick_t os_tick_current(void)
 //-----------------------------------------------------------------------------------------------------------
 u32 os_ms_current(void)
 {
-  return os_tick_current() / TICK_PERIOD_MS;
+  return os_tick_current() / OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 os_tick_t os_tick_from_ms(u32 ms)
 {
-  return ms / TICK_PERIOD_MS;
+  return ms / OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 os_timer_t *os_timer_create(u32 ms, void (*fn)(os_timer_t *, void *arg), void *arg, bool oneshot)

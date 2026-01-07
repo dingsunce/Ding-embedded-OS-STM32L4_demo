@@ -28,14 +28,9 @@
 #define MS_PER_SECOND (1000)
 #define NS_PER_MS     (1000 * 1000)
 #define NS_PER_SECOND (1000 * 1000 * 1000)
-
-#define TICK_PERIOD_MS 1
 //-----------------------------------------------------------------------------------------------------------
 void os_init(void)
 {
-  // pthread_cancel() will cancel the thread immediately
-  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-
   DMem_Init();
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -56,7 +51,7 @@ void os_free(void *ptr)
 os_thread_t *os_thread_create(char *name, u16 priority, u16 stacksize, os_entry_t entry, void *arg)
 {
   int            result;
-  pthread_t     *thread;
+  os_thread_t   *thread;
   pthread_attr_t attr;
 
   thread = os_malloc(sizeof(*thread));
@@ -72,29 +67,43 @@ os_thread_t *os_thread_create(char *name, u16 priority, u16 stacksize, os_entry_
   pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
   pthread_attr_setschedparam(&attr, &param);
 
-  result = pthread_create(thread, &attr, (void *)entry, arg);
+  /*
+    In Linux, returning from main() or calling exit() terminates the entire process, which
+    immediately destroys all threads created by pthread_create, regardless of whether they have
+    finished their work.
+  */
+  thread->should_stop = false;
+  result = pthread_create(&thread->pthread, &attr, (void *)entry, arg);
   if (result != 0)
   {
     os_free(thread);
     return NULL;
   }
 
-  pthread_setname_np(*thread, name);
+  pthread_setname_np(thread->pthread, name);
   return thread;
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_thread_destroy(os_thread_t *thread)
 {
-  // The pthread_cancel() function sends a cancelation request to the thread thread
-  pthread_cancel((pthread_t)thread);
+  thread->should_stop = true;
 }
 //-----------------------------------------------------------------------------------------------------------
 bool os_thread_should_stop(os_thread_t *thread)
 {
-  // pthread_testcancel() creates a cancelation point within the calling thread
-  pthread_testcancel();
+  /*
+    pthread_create will exexute the entry immediately, thread would be null at this point
+    when os_thread_create() returns, thread is not null
+  */
+  if (thread != NULL)
+    return thread->should_stop;
 
   return false;
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_thread_wait_for_completion(os_thread_t *thread)
+{
+  pthread_join(thread->pthread, NULL);
 }
 //-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)
@@ -430,12 +439,12 @@ void os_mbox_destroy(os_mbox_t *mbox)
 //-----------------------------------------------------------------------------------------------------------
 os_tick_t os_tick_from_ms(u32 ms)
 {
-  return ms / TICK_PERIOD_MS;
+  return ms / OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 os_tick_t os_ms_from_tick(os_tick_t tick)
 {
-  return tick * TICK_PERIOD_MS;
+  return tick * OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_msleep(u32 ms)
@@ -490,10 +499,19 @@ os_timer_t *os_timer_create(u32 ms, void (*fn)(os_timer_t *, void *arg), void *a
   timer->ms = ms;
   timer->oneshot = oneshot;
 
-  sev.sigev_notify = SIGEV_THREAD;      /* Notify via thread */
-  sev.sigev_notify_function = &expired; /* Thread start function */
-  sev.sigev_value.sival_ptr = timer;    /* Argument passed to threadFunc() */
-  sev.sigev_notify_attributes = NULL;   /* Default thread attributes */
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+
+  // set priority needs root privilege
+  struct sched_param param = {.sched_priority = TIMER_PRIO};
+  pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+  pthread_attr_setschedparam(&attr, &param);
+
+  sev.sigev_notify = SIGEV_THREAD;
+  sev.sigev_notify_function = &expired;
+  sev.sigev_value.sival_ptr = timer;
+  sev.sigev_notify_attributes = &attr;
 
   if (timer_create(CLOCK_MONOTONIC, &sev, &timer->timerid) == -1)
   {

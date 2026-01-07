@@ -18,12 +18,15 @@ static void    *mbox_msg = NULL;
 static uint32_t event_value = 0;
 static uint32_t mbox_value = 0;
 //-----------------------------------------------------------------------------------------------------------
-static void OneShot_TImer(os_timer_t *timer, void *arg)
+static void OneShot_Timer(os_timer_t *timer, void *arg)
 {
-  mbox_value++;
+  os_thread_destroy(TaskThread1);
+  os_thread_destroy(TaskThread2);
+
+  OS_PRINT("IPC Test: Destory TaskThread1, TaskThread2\n");
 }
 //-----------------------------------------------------------------------------------------------------------
-static void Cycle_TImer(os_timer_t *timer, void *arg)
+static void Cycle_Timer(os_timer_t *timer, void *arg)
 {
   mbox_value++;
 }
@@ -34,17 +37,39 @@ static os_return_t Ipc_Task1(void *p_arg)
 
   while (!os_thread_should_stop(TaskThread1))
   {
+    // sem test
+    OS_PRINT("Task1 os_sem_wait\n");
+
     os_sem_wait(TestIpcSem, OS_WAIT_FOREVER);
 
+    OS_PRINT("Task1 os_sem_received\n");
+
+    // event test
+    OS_PRINT("Task1 os_event_wait\n");
+
     os_event_wait(TestIpcEvent, 0x01, &event_value, OS_WAIT_FOREVER);
+
+    OS_PRINT("Task1 os_event_received\n");
+
+    // mbox test
+    OS_PRINT("Task1 os_mbox_fetch\n");
 
     os_mbox_fetch(TestIpcMbox, &mbox_msg, OS_WAIT_FOREVER);
 
     event_value = *(uint32_t *)mbox_msg;
 
+    OS_PRINT("Task1 os_mbox_fetched value=%d\n", event_value);
+
+    // mutex test
+    OS_PRINT("Task1 os_mutex_lock\n");
+
     os_mutex_lock(TestIpcMutex);
 
+    OS_PRINT("Task1 os_mutex_locked\n");
+
     os_msleep(2000);
+
+    OS_PRINT("Task1 os_mutex_unlock\n");
 
     os_mutex_unlock(TestIpcMutex);
 
@@ -60,21 +85,37 @@ static os_return_t Ipc_Task2(void *p_arg)
 
   while (!os_thread_should_stop(TaskThread2))
   {
+    // sem test
     os_msleep(1000);
+
+    OS_PRINT("Task2 os_sem_signal\n");
 
     os_sem_signal(TestIpcSem);
 
+    // event test
     os_msleep(1000);
+
+    OS_PRINT("Task2 os_event_set\n");
 
     os_event_set(TestIpcEvent, 0x01);
 
+    // mbox test
     os_msleep(1000);
+
+    OS_PRINT("Task2 os_mbox_post value=%d\n", mbox_value);
 
     os_mbox_post(TestIpcMbox, &mbox_value, OS_WAIT_FOREVER);
 
+    OS_PRINT("Task2 os_mutex_lock\n");
+
+    // mutex test
     os_mutex_lock(TestIpcMutex);
 
+    OS_PRINT("Task2 os_mutex_locked\n");
+
     os_msleep(1000);
+
+    OS_PRINT("Task2 os_mutex_unlock\n");
 
     os_mutex_unlock(TestIpcMutex);
   }
@@ -88,12 +129,28 @@ void app_pic_test_start(void)
   TestIpcMutex = os_mutex_create();
   TestIpcEvent = os_event_create();
   TestIpcMbox = os_mbox_create(3);
-  TestOneShotTimer = os_timer_create(3000, OneShot_TImer, NULL, true);
-  TestCycleTimer = os_timer_create(3000, Cycle_TImer, NULL, false);
+  TestOneShotTimer = os_timer_create(20000, OneShot_Timer, NULL, true);
+  TestCycleTimer = os_timer_create(3000, Cycle_Timer, NULL, false);
 
   TaskThread1 = os_thread_create("ipc_test_task1", 5, 256, Ipc_Task1, NULL);
   TaskThread2 = os_thread_create("ipc_test_task2", 6, 256, Ipc_Task2, NULL);
 
   os_timer_start(TestOneShotTimer);
   os_timer_start(TestCycleTimer);
+
+  OS_PRINT("IPC Test Start\n");
+}
+//-----------------------------------------------------------------------------------------------------------
+void app_pic_test_stop(void)
+{
+  os_timer_destroy(TestOneShotTimer);
+  os_timer_destroy(TestCycleTimer);
+
+  os_thread_destroy(TaskThread1);
+  os_thread_destroy(TaskThread2);
+
+  os_thread_wait_for_completion(TaskThread1);
+  os_thread_wait_for_completion(TaskThread2);
+
+  OS_PRINT("IPC Test Stop\n");
 }

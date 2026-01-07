@@ -7,42 +7,40 @@
 #include "message.h"
 #include "s_list.h"
 
-static volatile u8   Tick200us = 0;
-static volatile u32  Tick1ms = 0;
-static volatile bool Tick1msOn = false;
-static volatile u32  Tick200usBackup = 0;
+static volatile u32  CurTicks = 0;
+static volatile bool TickOn = false;
 //-----------------------------------------------------------------------------------------------------------
-u32 SysTick_Get1msTicks(void)
+u32 SysTick_GetCurTicks(void)
 {
-  return Tick1ms;
+  return CurTicks;
 }
 //-----------------------------------------------------------------------------------------------------------
 u32 sys_now(void)
 {
-  return Tick1ms;
+  return CurTicks * OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 void SysTick_Init(void)
 {
-  Tick1ms = 0;
-  Tick1msOn = false;
+  CurTicks = 0;
+  TickOn = false;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool SysTick_IsTick1msOn(void)
+bool SysTick_IsTickOn(void)
 {
-  return Tick1msOn;
+  return TickOn;
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_ResetTick1msOn(void)
+void SysTick_ResetTickOn(void)
 {
-  Tick1msOn = false;
+  TickOn = false;
 }
 //-----------------------------------------------------------------------------------------------------------
 void SysTick_On(void)
 {
-  Tick1ms++;
+  CurTicks++;
 
-  Tick1msOn = true;
+  TickOn = true;
 
   Msg_PostSem();
 }
@@ -51,10 +49,10 @@ u32 SysTick_GetDelayMs(u32 nOldTime)
 {
   u32 delay;
 
-  if (Tick1ms >= nOldTime)
-    delay = Tick1ms - nOldTime;
+  if (sys_now() >= nOldTime)
+    delay = sys_now() - nOldTime;
   else
-    delay = 0xffffffff - nOldTime + Tick1ms;
+    delay = 0xffffffff - nOldTime + sys_now();
 
   return delay;
 }
@@ -71,11 +69,11 @@ void SysTick_DelayMs(u32 delay)
 //-----------------------------------------------------------------------------------------------------------
 void SysTick_Update(u32 pTime)
 {
-  Tick1ms = Tick1ms + pTime;
+  CurTicks = CurTicks + pTime / OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 void SysTick_Reset(void)
 {
-  Tick1ms = 0;
-  Tick1msOn = false;
+  CurTicks = 0;
+  TickOn = false;
 }

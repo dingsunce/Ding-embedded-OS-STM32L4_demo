@@ -199,11 +199,11 @@ int main(void)
     /* USER CODE BEGIN 3 */
     DOS_Run();
 
-    if (SysTick_IsTick1msOn())
+    if (SysTick_IsTickOn())
     {
-      SysTick_ResetTick1msOn();
+      SysTick_ResetTickOn();
 
-      DOS_Run1ms();
+      DOS_RunOneTick();
 
       Wdg_Clear();
     }

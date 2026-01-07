@@ -17,17 +17,20 @@ void DOS_Init(void)
   DTask_Init();
 }
 //-----------------------------------------------------------------------------------------------------------
-void DOS_Run1ms(void)
+void DOS_RunOneTick(void)
 {
-  // call DOS_Run1ms in main while loop 1ms, if we did not use a preemptive os like rt-thread
-  Msg_Run1ms();
+  /*
+    call DOS_RunOneTick in main while loop per tick time,
+    if we did not embed DOS in a preemptive os like rt-thread
+  */
+  Msg_RunOneTick();
 }
 //-----------------------------------------------------------------------------------------------------------
 void DOS_Run(void)
 {
   /*
     call DOS_Run in main while loop as quickly as possible ,
-    if we did not use a preemptive os like rt-thread
+    if we did not embed DOS in a preemptive os like rt-thread
   */
   Process_Run();
   DTask_Run();
@@ -36,7 +39,7 @@ void DOS_Run(void)
 void DOS_Exit(void)
 {
   DTask_Exit();
-  Process_Exit();
+  DProcess_Exit();
   Msg_Exit();
   DMem_Exit();
 }

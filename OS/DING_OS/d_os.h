@@ -15,7 +15,7 @@ extern "C"
 
   void DOS_Init(void);
   void DOS_Exit(void);
-  void DOS_Run1ms(void);
+  void DOS_RunOneTick(void);
   void DOS_Run(void);
 
 #define ContainerOf(ptr, type, member) ((type *)((char *)(ptr) - (uintptr_t)(&((type *)0)->member)))

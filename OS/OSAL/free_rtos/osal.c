@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#define TM_TO_TICK(ms) ((ms == OS_WAIT_FOREVER) ? portMAX_DELAY : (ms) / portTICK_PERIOD_MS)
+#define TM_TO_TICK(ms) ((ms == OS_WAIT_FOREVER) ? portMAX_DELAY : (ms) / OS_TICK_PERIOD_MS)
 
 static BaseType_t xHigherPriorityTaskWoken;
 //-----------------------------------------------------------------------------------------------------------
@@ -49,6 +49,10 @@ void os_thread_destroy(os_thread_t *thread)
 bool os_thread_should_stop(os_thread_t *thread)
 {
   return false;
+}
+//-----------------------------------------------------------------------------------------------------------
+void os_thread_wait_for_completion(os_thread_t *thread)
+{
 }
 //-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)

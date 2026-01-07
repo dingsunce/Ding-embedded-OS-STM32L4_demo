@@ -70,6 +70,8 @@ PROCESS_HANDLER(FunctionProcess, msgId, arg)
     {
       FunctionCycleOn = true;
       FunctionCycleOn = FunctionCycleOn;
+
+      OS_PRINT("MSG Test: 3s cycle timer trggered\n");
     }
   }
 
@@ -84,4 +86,6 @@ void app_msg_test_start(void)
   Msg_SendInstant(&TimerProcess, TIMER_INSTANT, NULL);
   Msg_SendLater(&TimerProcess, TIMER_LATER, NULL, 10);
   Msg_SendCycle(&TimerProcess, TIMER_CYCLE, NULL, 3000);
+
+  OS_PRINT("MSG Test Start\n");
 }

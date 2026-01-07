@@ -16,6 +16,7 @@ extern "C"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
   typedef unsigned long long s64;
@@ -27,10 +28,22 @@ extern "C"
   typedef uint16_t           u16;
   typedef uint8_t            u8;
 
+#define OS_TICK_PERIOD_MS (1000 / OS_CFG_TICK_RATE_HZ)
+
 // 0 is highest priority ......
 #define OS_INVERTED_PRIORITY 0
 
 #define OS_WAIT_FOREVER 0xFFFFFFFF
+
+#ifndef OS_DEBUG
+#define OS_DEBUG 0
+#endif
+
+#if OS_DEBUG == 0
+#define OS_PRINT(...)
+#else
+#define OS_PRINT printf
+#endif
 
   typedef OS_MUTEX    os_mutex_t;
   typedef OS_TCB      os_thread_t;
@@ -56,6 +69,7 @@ extern "C"
                                 void *arg);
   void         os_thread_destroy(os_thread_t *thread);
   bool         os_thread_should_stop(os_thread_t *thread);
+  void         os_thread_wait_for_completion(os_thread_t *thread);
 
   os_mutex_t *os_mutex_create(void);
   void        os_mutex_lock(os_mutex_t *mutex);

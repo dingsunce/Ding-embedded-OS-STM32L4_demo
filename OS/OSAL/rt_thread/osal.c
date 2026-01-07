@@ -8,8 +8,6 @@
 #include "rthw.h"
 #include <stdlib.h>
 
-#define TICK_PERIOD_MS (1000 / RT_TICK_PER_SECOND)
-
 static rt_err_t err;
 
 #if defined(RT_USING_HEAP)
@@ -111,6 +109,10 @@ bool os_thread_should_stop(os_thread_t *thread)
   return false;
 }
 //-----------------------------------------------------------------------------------------------------------
+void os_thread_wait_for_completion(os_thread_t *thread)
+{
+}
+//-----------------------------------------------------------------------------------------------------------
 os_mutex_t *os_mutex_create(void)
 {
   rt_mutex_t mutex = rt_mutex_create("mutex", RT_IPC_FLAG_FIFO);
@@ -143,7 +145,7 @@ bool os_sem_wait(os_sem_t *sem, u32 ms)
   if (ms == OS_WAIT_FOREVER)
     err = rt_sem_take((rt_sem_t)sem, RT_WAITING_FOREVER);
   else
-    err = rt_sem_take((rt_sem_t)sem, ms / TICK_PERIOD_MS);
+    err = rt_sem_take((rt_sem_t)sem, ms / OS_TICK_PERIOD_MS);
 
   if (err != RT_EOK)
     return false;
@@ -172,7 +174,7 @@ bool os_event_wait(os_event_t *event, u32 mask, u32 *value, u32 ms)
   if (ms == OS_WAIT_FOREVER)
     err = rt_event_recv((rt_event_t)event, mask, RT_EVENT_FLAG_OR, RT_WAITING_FOREVER, value);
   else
-    err = rt_event_recv((rt_event_t)event, mask, RT_EVENT_FLAG_OR, ms / TICK_PERIOD_MS, value);
+    err = rt_event_recv((rt_event_t)event, mask, RT_EVENT_FLAG_OR, ms / OS_TICK_PERIOD_MS, value);
 
   if (err != RT_EOK)
     return false;
@@ -206,7 +208,7 @@ bool os_mbox_fetch(os_mbox_t *mbox, void **msg, u32 ms)
   if (ms == OS_WAIT_FOREVER)
     err = rt_mb_recv(mbox, (rt_ubase_t *)msg, RT_WAITING_FOREVER);
   else
-    err = rt_mb_recv(mbox, (rt_ubase_t *)msg, ms / TICK_PERIOD_MS);
+    err = rt_mb_recv(mbox, (rt_ubase_t *)msg, ms / OS_TICK_PERIOD_MS);
 
   if (err != RT_EOK)
     return false;
@@ -231,7 +233,7 @@ void os_mbox_destroy(os_mbox_t *mbox)
 //-----------------------------------------------------------------------------------------------------------
 void os_msleep(u32 ms)
 {
-  rt_thread_delay(ms / TICK_PERIOD_MS);
+  rt_thread_delay(ms / OS_TICK_PERIOD_MS);
 }
 //-----------------------------------------------------------------------------------------------------------
 void os_tick_sleep(os_tick_t tick)
@@ -246,12 +248,12 @@ os_tick_t os_tick_current(void)
 //-----------------------------------------------------------------------------------------------------------
 u32 os_ms_current(void)
 {
-  return os_tick_current() / TICK_PERIOD_MS;
+  return os_tick_current() / OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 os_tick_t os_tick_from_ms(u32 ms)
 {
-  return ms / TICK_PERIOD_MS;
+  return ms / OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
 static void os_timer_callback(void *parameter)

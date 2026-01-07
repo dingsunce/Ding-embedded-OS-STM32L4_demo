@@ -33,7 +33,7 @@ extern "C"
 
   void    Msg_Init(void);
   void    Msg_Exit(void);
-  void    Msg_Run1ms(void);
+  void    Msg_RunOneTick(void);
   void    Msg_PostSem(void);
   void    Msg_Cancel(Process_t *process, MsgId_t msgId);
   void    Msg_CancelFirst(Process_t *process, MsgId_t msgId);

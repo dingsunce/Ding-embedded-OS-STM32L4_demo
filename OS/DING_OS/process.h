@@ -55,9 +55,9 @@ extern "C"
 
   void Process_ReStart(Process_t *p);
 
-  void Process_DoExit(Process_t *p);
+  void Process_Exit(Process_t *p);
 
-  void Process_DoExitAll(void);
+  void Process_ExitAll(void);
 
   void Process_HandleMsg(Process_t *p, MsgId_t msg, MsgArg_t data);
 
@@ -65,7 +65,7 @@ extern "C"
 
   void Process_Init(void);
 
-  void Process_Exit(void);
+  void DProcess_Exit(void);
 
   void Process_Run(void);
 

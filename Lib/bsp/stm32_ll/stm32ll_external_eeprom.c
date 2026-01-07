@@ -116,10 +116,10 @@ void Ee_Process(void)
 
 static OsErr_t WaitI2cTxRxComplete(void)
 {
-  u32 startTick = SysTick_Get1msTicks();
+  u32 startTick = SysTick_GetCurTicks();
   while (!I2cImpl_IsTxRxComplete())
   {
-    if ((SysTick_Get1msTicks() - startTick) >= EE_WAIT_TIMEOUT)
+    if ((SysTick_GetCurTicks() - startTick) >= EE_WAIT_TIMEOUT)
     {
       return OS_ERR_BUSY;
     }
@@ -219,8 +219,8 @@ void Ee_StopDirectWrite(void)
 
 static void WaitEeWriteComplete(void)
 {
-  u32 startTick = SysTick_Get1msTicks();
-  while ((SysTick_Get1msTicks() - startTick) < EE_WRITE_TIME)
+  u32 startTick = SysTick_GetCurTicks();
+  while ((SysTick_GetCurTicks() - startTick) < EE_WRITE_TIME)
   {
   }
 }

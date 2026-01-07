@@ -15,9 +15,9 @@ extern "C"
 
   void SysTick_Init(void);
 
-  u32  SysTick_Get1msTicks(void);
-  bool SysTick_IsTick1msOn(void);
-  void SysTick_ResetTick1msOn(void);
+  u32  SysTick_GetCurTicks(void);
+  bool SysTick_IsTickOn(void);
+  void SysTick_ResetTickOn(void);
 
   void SysTick_On(void);
   u32  sys_now(void);

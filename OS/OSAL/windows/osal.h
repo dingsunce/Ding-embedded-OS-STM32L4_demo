@@ -15,6 +15,7 @@ extern "C"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <windows.h>
 
@@ -27,10 +28,25 @@ extern "C"
   typedef uint16_t           u16;
   typedef uint8_t            u8;
 
+#define OS_TICK_PERIOD_MS 1
+
 // 0 is lowest priority ......
 #define OS_INVERTED_PRIORITY 1
 
+// THREAD_PRIORITY_BELOW_NORMAL	7
+#define D_OS_PRIO 7
+
 #define OS_WAIT_FOREVER INFINITE
+
+#ifndef OS_DEBUG
+#define OS_DEBUG 0
+#endif
+
+#if OS_DEBUG == 0
+#define OS_PRINT(...)
+#else
+#define OS_PRINT printf
+#endif
 
   typedef CRITICAL_SECTION os_mutex_t;
   typedef uint64_t         os_tick_t;
@@ -92,6 +108,7 @@ extern "C"
                                 void *arg);
   void         os_thread_destroy(os_thread_t *thread);
   bool         os_thread_should_stop(os_thread_t *thread);
+  void         os_thread_wait_for_completion(os_thread_t *thread);
 
   os_mutex_t *os_mutex_create(void);
   void        os_mutex_lock(os_mutex_t *mutex);

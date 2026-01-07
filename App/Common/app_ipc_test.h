@@ -12,6 +12,7 @@ extern "C"
 #endif
 
   void app_pic_test_start(void);
+  void app_pic_test_stop(void);
 
 #ifdef __cplusplus
 }
