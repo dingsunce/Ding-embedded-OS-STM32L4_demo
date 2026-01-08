@@ -15,8 +15,8 @@ typedef struct TaskItems
 {
   DLIST_HEADER;
   DProcess_t *Process;
-  DMsgId_t MsgId;
-  DMsgArg_t Arg;
+  DMsgId_t    MsgId;
+  DMsgArg_t   Arg;
 } TaskItem_t;
 
 DLIST(TaskElementList);
@@ -29,8 +29,8 @@ static u16 TaskMemAllocCurrentNum = 0;
 static u16 TaskMemAllocMaxNum = 0;
 #endif
 
-static os_sem_t *TaskPendingSem;
-static os_sem_t *TaskListSem;
+static os_sem_t    *TaskPendingSem;
+static os_sem_t    *TaskListSem;
 static os_thread_t *TaskThread;
 //-----------------------------------------------------------------------------------------------------------
 static os_return_t DTask_Thread(void *arg)

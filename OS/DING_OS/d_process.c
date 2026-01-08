@@ -40,7 +40,7 @@ void DProcess_Init(void)
   // prevent reiniting the process
   DProcess_ExitAllProc();
 
-  DoubleList_Init(&MyProcessList);
+  DbList_Init(&MyProcessList);
 
   ProcessPendingSem = os_sem_create(0);
   ProcessListSem = os_sem_create(1);
@@ -71,8 +71,8 @@ void DProcess_InitStructure(DProcess_t *p, DProcessHandler handler)
 
   os_sem_wait(ProcessListSem, OS_WAIT_FOREVER);
 
-  DoubleList_Init(&p->ProcessList);
-  DoubleList_Init(&p->TimerList);
+  DbList_Init(&p->ProcessList);
+  DbList_Init(&p->TimerList);
 
   os_sem_signal(ProcessListSem);
 
@@ -102,8 +102,8 @@ void DProcess_Start(DProcess_t *p)
 
   os_sem_wait(ProcessListSem, OS_WAIT_FOREVER);
 
-  DoubleList_Init(&p->ProcessList);
-  DoubleList_Init(&p->TimerList);
+  DbList_Init(&p->ProcessList);
+  DbList_Init(&p->TimerList);
   DbList_Add(&MyProcessList, &p->ProcessList);
 
   os_sem_signal(ProcessListSem);

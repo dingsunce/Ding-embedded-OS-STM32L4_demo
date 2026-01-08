@@ -63,7 +63,7 @@ static void InitTimerTable(void)
 {
   for (u8 i = 0; i < DMSG_TIMER_TABLE_SIZE; i++)
   {
-    DoubleList_Init(&MsgTimerTable[i].TimerList);
+    DbList_Init(&MsgTimerTable[i].TimerList);
   }
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ static void InsertToTimerTable(MsgTimer_t *timer)
     all items in table have a match value smaller than timer
   */
   Db_List_t *ListInsert = &table->TimerList;
-  DoubleList_Init(&timer->ListInTimerTable);
+  DbList_Init(&timer->ListInTimerTable);
 
   Db_List_t *tmp = table->TimerList.next;
   while (tmp != &table->TimerList)
@@ -242,7 +242,7 @@ static OsErr_t Msg_Send(DProcess_t *process, DMsgId_t msgId, DMsgArg_t arg, u32 
     timer->Arg = arg;
     timer->Process = process;
 
-    DoubleList_Init(&timer->ListInProcess);
+    DbList_Init(&timer->ListInProcess);
 
     os_sem_wait(MsgListSem, OS_WAIT_FOREVER);
 

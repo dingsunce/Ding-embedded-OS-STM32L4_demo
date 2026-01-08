@@ -20,8 +20,7 @@ extern "C"
     struct Db_List *prev;
   } Db_List_t;
 
-  void DoubleList_Init(Db_List_t *list);
-
+  void       DbList_Init(Db_List_t *list);
   void       DbList_Add(Db_List_t *listHeader, Db_List_t *entry);
   void       DbList_Push(Db_List_t *listHeader, Db_List_t *entry);
   Db_List_t *DbList_Pop(Db_List_t *listHeader);
