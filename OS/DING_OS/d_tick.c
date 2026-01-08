@@ -3,9 +3,9 @@
  * $Author: sunce.ding
  *******************************************************************************/
 #include "d_tick.h"
+#include "d_list.h"
 #include "d_memb.h"
 #include "d_message.h"
-#include "s_list.h"
 
 static volatile u32  CurTicks = 0;
 static volatile bool TickOn = false;

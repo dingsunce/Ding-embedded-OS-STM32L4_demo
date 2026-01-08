@@ -5,12 +5,12 @@
 
 typedef struct
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   u8 *pData;
   u16 Length;
 } UartElement_t;
 
-LIST(TxList);
+DLIST(TxList);
 static bool           WithinTx = false;
 static UartElement_t *pTxCurrent;
 static Uart_RcvFunc_t Uart_RcvFunc;
@@ -24,7 +24,7 @@ void Uart_Init(Uart_RcvFunc_t rcvFunc)
 
   UartImpl_Init();
 
-  List_Init(TxList);
+  DList_Init(TxList);
 }
 
 void Uart_Process(void)
@@ -50,7 +50,7 @@ static void Uart_TxProcess(void)
 {
   if (!WithinTx)
   {
-    pTxCurrent = List_Pop(TxList);
+    pTxCurrent = DList_Pop(TxList);
     if (pTxCurrent != NULL)
     {
       WithinTx = true;
@@ -79,7 +79,7 @@ OsErr_t Uart_Send(u8 channel, const u8 *pData, u16 length)
     pElement->pData = pElementData;
     pElement->Length = length;
 
-    List_Add(TxList, pElement);
+    DList_Add(TxList, pElement);
 
     return OS_ERR_OK;
   }

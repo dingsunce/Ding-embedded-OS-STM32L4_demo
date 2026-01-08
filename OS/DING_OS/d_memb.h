@@ -10,9 +10,9 @@ extern "C"
 {
 #endif
 
-#include "SList.h"
 #include "define.h"
 #include "osal.h"
+#include "s_list.h"
 
   typedef struct DMemblock
   {

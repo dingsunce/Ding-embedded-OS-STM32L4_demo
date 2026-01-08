@@ -4935,6 +4935,12 @@
         <group>
             <name>DING_OS</name>
             <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_list.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_list.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\d_mem.c</name>
             </file>
             <file>
@@ -4980,10 +4986,10 @@
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\define.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\DList.c</name>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\double_list.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\DList.h</name>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\double_list.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\error.h</name>
@@ -4999,12 +5005,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\s_list.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\SList.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\SList.h</name>
             </file>
         </group>
         <group>

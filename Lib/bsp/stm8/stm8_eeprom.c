@@ -6,18 +6,18 @@
 
 typedef struct
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   EeAdd_t Add;   // Address of the stored element.
   u8      Value; // Value of the stored element.
 } EeElement_t;
 
-LIST(EeList);
+DLIST(EeList);
 static bool DirectWrite = false;
 
 /*-----------------------------Init and process------------------------------*/
 void Ee_Init(void)
 {
-  List_Init(EeList);
+  DList_Init(EeList);
 
   FLASH_Unlock(FLASH_MemType_Data);
 }
@@ -30,7 +30,7 @@ void Ee_Process(void)
     return;
   }
 
-  EeElement_t *pElement = List_Pop(EeList);
+  EeElement_t *pElement = DList_Pop(EeList);
   if (pElement != NULL)
   {
     FLASH_ProgramByte((u32)pElement->Add, pElement->Value);
@@ -66,7 +66,7 @@ u32 Ee_Read32(EeAdd_t add)
 /*-----------------------------------Write-----------------------------------*/
 static bool Ee_CheckExistAndUpdate(EeAdd_t add, u8 value)
 {
-  EeElement_t *pElement = (EeElement_t *)List_Head(EeList);
+  EeElement_t *pElement = (EeElement_t *)DList_Head(EeList);
 
   while (pElement != NULL)
   {
@@ -77,7 +77,7 @@ static bool Ee_CheckExistAndUpdate(EeAdd_t add, u8 value)
       return true;
     }
 
-    pElement = (EeElement_t *)List_ItemNext(pElement);
+    pElement = (EeElement_t *)DList_ItemNext(pElement);
   }
 
   return false;
@@ -87,7 +87,7 @@ void Ee_StartDirectWrite(void)
 {
   FLASH_WaitForLastOperation(FLASH_MemType_Data);
 
-  EeElement_t *pElement = List_Pop(EeList);
+  EeElement_t *pElement = DList_Pop(EeList);
   while (pElement != NULL)
   {
     FLASH_ProgramByte((u32)pElement->Add, pElement->Value);
@@ -95,7 +95,7 @@ void Ee_StartDirectWrite(void)
 
     DMem_Free(pElement);
 
-    pElement = List_Pop(EeList);
+    pElement = DList_Pop(EeList);
   }
 
   DirectWrite = true;
@@ -126,7 +126,7 @@ OsErr_t Ee_Write8(EeAdd_t add, u8 value)
       pElement->Add = add;
       pElement->Value = value;
 
-      List_Add(EeList, pElement);
+      DList_Add(EeList, pElement);
     }
     else
     {
@@ -182,5 +182,5 @@ OsErr_t Ee_Write32(EeAdd_t add, u32 value)
 
 bool Ee_IsEmpty(void)
 {
-  return List_Length(EeList) == 0;
+  return DList_Length(EeList) == 0;
 }

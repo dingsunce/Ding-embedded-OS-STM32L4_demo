@@ -1,58 +1,58 @@
-#include "d_tick.h"
+#include "d_list.h"
 #include "d_mem.h"
+#include "d_tick.h"
 #include "eeprom_func.h"
-#include "s_list.h"
 #include "stm32ll_i2c_impl.h"
 #include "wdg_func.h"
 
 #if defined AT24C01
-#define EE_PAGE_SIZE 8
-#define EE_TOTAL_SIZE 128
+#define EE_PAGE_SIZE       8
+#define EE_TOTAL_SIZE      128
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C02
-#define EE_PAGE_SIZE 8
-#define EE_TOTAL_SIZE 256
+#define EE_PAGE_SIZE       8
+#define EE_TOTAL_SIZE      256
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C04
-#define EE_PAGE_SIZE 16
-#define EE_TOTAL_SIZE 512
+#define EE_PAGE_SIZE       16
+#define EE_TOTAL_SIZE      512
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C08
-#define EE_PAGE_SIZE 16
-#define EE_TOTAL_SIZE 1024
+#define EE_PAGE_SIZE       16
+#define EE_TOTAL_SIZE      1024
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C16
-#define EE_PAGE_SIZE 16
-#define EE_TOTAL_SIZE 2048
+#define EE_PAGE_SIZE       16
+#define EE_TOTAL_SIZE      2048
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C32
-#define EE_PAGE_SIZE 32
-#define EE_TOTAL_SIZE 4096
+#define EE_PAGE_SIZE       32
+#define EE_TOTAL_SIZE      4096
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C64
-#define EE_PAGE_SIZE 32
-#define EE_TOTAL_SIZE 8192
+#define EE_PAGE_SIZE       32
+#define EE_TOTAL_SIZE      8192
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C128
-#define EE_PAGE_SIZE 64
-#define EE_TOTAL_SIZE 16384
+#define EE_PAGE_SIZE       64
+#define EE_TOTAL_SIZE      16384
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C256
-#define EE_PAGE_SIZE 64
-#define EE_TOTAL_SIZE 32768
+#define EE_PAGE_SIZE       64
+#define EE_TOTAL_SIZE      32768
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C512
-#define EE_PAGE_SIZE 128
-#define EE_TOTAL_SIZE 65536
+#define EE_PAGE_SIZE       128
+#define EE_TOTAL_SIZE      65536
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #endif
@@ -69,8 +69,8 @@
 
 #endif
 
-#define EE_WAIT_TIMEOUT 5 // 5ms
-#define EE_WRITE_TIME 15  // 15ms
+#define EE_WAIT_TIMEOUT 5  // 5ms
+#define EE_WRITE_TIME   15 // 15ms
 
 //// Call Ee_Process() I2c_Process() every 20ms if EE_DIRECT_WRITE == 0
 #ifndef EE_DIRECT_WRITE
@@ -81,12 +81,12 @@
 
 typedef struct
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   EeAdd_t Addr;
-  u8 Value;
+  u8      Value;
 } EeElement_t;
 
-LIST(EeList);
+DLIST(EeList);
 
 static bool DirectWrite = false;
 #endif
@@ -95,7 +95,7 @@ static bool DirectWrite = false;
 void Ee_Init(void)
 {
 #if (EE_DIRECT_WRITE == 0)
-  List_Init(EeList);
+  DList_Init(EeList);
 #endif
 }
 
@@ -103,7 +103,7 @@ void Ee_Init(void)
 void Ee_Process(void)
 {
 #if (EE_DIRECT_WRITE == 0)
-  EeElement_t *pElement = List_Pop(EeList);
+  EeElement_t *pElement = DList_Pop(EeList);
   if (pElement != NULL)
   {
     I2c_StartMemoryTx(GetDeviceAddr(pElement->Addr), pElement->Addr, EE_I2C_MEMORY_SIZE,
@@ -170,7 +170,7 @@ u32 Ee_Read32(EeAdd_t addr)
 #if (EE_DIRECT_WRITE == 0)
 static bool Ee_CheckExistAndUpdate(EeAdd_t addr, u8 value)
 {
-  EeElement_t *pElement = (EeElement_t *)List_Head(EeList);
+  EeElement_t *pElement = (EeElement_t *)DList_Head(EeList);
 
   while (pElement != NULL)
   {
@@ -181,7 +181,7 @@ static bool Ee_CheckExistAndUpdate(EeAdd_t addr, u8 value)
       return true;
     }
 
-    pElement = (EeElement_t *)List_ItemNext(pElement);
+    pElement = (EeElement_t *)DList_ItemNext(pElement);
   }
 
   return false;
@@ -194,7 +194,7 @@ void Ee_StartDirectWrite(void)
 #if (EE_DIRECT_WRITE == 0)
   WaitI2cTxRxComplete();
 
-  EeElement_t *pElement = List_Pop(EeList);
+  EeElement_t *pElement = DList_Pop(EeList);
   while (pElement != NULL)
   {
     I2cImpl_StartMemoryTx(GetDeviceAddr(pElement->Addr), pElement->Addr, EE_I2C_MEMORY_SIZE,
@@ -203,7 +203,7 @@ void Ee_StartDirectWrite(void)
 
     DMem_Free(pElement);
 
-    pElement = List_Pop(EeList);
+    pElement = DList_Pop(EeList);
   }
 
   DirectWrite = true;
@@ -241,7 +241,7 @@ OsErr_t Ee_Write8(EeAdd_t addr, u8 value)
       pElement->Addr = addr;
       pElement->Value = value;
 
-      List_Add(EeList, pElement);
+      DList_Add(EeList, pElement);
     }
     else
     {
@@ -309,7 +309,7 @@ OsErr_t Ee_Write32(EeAdd_t addr, u32 value)
 bool Ee_IsEmpty(void)
 {
 #if (EE_DIRECT_WRITE == 0)
-  return List_Length(EeList) == 0;
+  return DList_Length(EeList) == 0;
 #else
   return true;
 #endif

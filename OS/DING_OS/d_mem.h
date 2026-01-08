@@ -28,7 +28,7 @@ extern "C"
   void *DMem_Malloc(u16 size);
   void  DMem_Free(void *ptr);
 
-#if (MEM_DEBUG == 1)
+#if (DMEM_DEBUG == 1)
   u16 DMem_GetAllocSize(void);
   u16 DMem_GetFreeSize(void);
 #endif

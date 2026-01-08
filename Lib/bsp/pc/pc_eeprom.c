@@ -4,19 +4,19 @@
 
 typedef struct EeEntry
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   EeAdd_t add;
   u32     value;
 } EeEntry_t;
 
 #define EE_SUM 500
 
-LIST(EeList);
+DLIST(EeList);
 MEMB(EeMem, struct EeEntry, EE_SUM);
 
 void Ee_Init(void)
 {
-  List_Init(EeList);
+  DList_Init(EeList);
   Memb_Init(&EeMem);
 }
 
@@ -34,7 +34,7 @@ void Ee_StopDirectWrite(void)
 
 static EeEntry_t *FindExistedEntry(u16 add)
 {
-  EeEntry_t *entry = List_Head(EeList);
+  EeEntry_t *entry = DList_Head(EeList);
 
   while (entry != NULL)
   {
@@ -43,7 +43,7 @@ static EeEntry_t *FindExistedEntry(u16 add)
       return entry;
     }
 
-    entry = List_ItemNext(entry);
+    entry = DList_ItemNext(entry);
   }
 
   return NULL;
@@ -89,7 +89,7 @@ static OsErr_t AddEntryToList(u16 add, u16 data)
   {
     entry->value = data;
     entry->add = add;
-    List_Add(EeList, entry);
+    DList_Add(EeList, entry);
     return OS_ERR_OK;
   }
 

@@ -6,7 +6,7 @@
 
 typedef struct
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   u8 *pData;
   u16 Length;
 } UartTxElement_t;
@@ -15,7 +15,7 @@ typedef struct
 {
   bool             WithinTx;
   UartTxElement_t *pTxCurrent;
-  LIST_STRUCT(TxList);
+  DLIST_STRUCT(TxList);
 } Uart_t;
 
 static Uart_t         Uart[UART_CHANNEL_SUM];
@@ -34,7 +34,7 @@ void Uart_Init(Uart_RcvFunc_t rcvFunc)
   {
     Uart[i].WithinTx = false;
 
-    LIST_STRUCT_INIT(&Uart[i], TxList);
+    DLIST_STRUCT_INIT(&Uart[i], TxList);
 
     UartImpl_Init(UartImpl + i);
   }
@@ -54,7 +54,7 @@ static void Uart_TxProcess(void)
   {
     if (!Uart[i].WithinTx)
     {
-      Uart[i].pTxCurrent = List_Pop(Uart[i].TxList);
+      Uart[i].pTxCurrent = DList_Pop(Uart[i].TxList);
       if (Uart[i].pTxCurrent != NULL)
       {
         Uart[i].WithinTx = true;
@@ -84,7 +84,7 @@ OsErr_t Uart_Send(u8 channel, const u8 *pData, u16 length)
     pElement->pData = pElementData;
     pElement->Length = length;
 
-    List_Add(Uart[channel].TxList, pElement);
+    DList_Add(Uart[channel].TxList, pElement);
 
     return OS_ERR_OK;
   }

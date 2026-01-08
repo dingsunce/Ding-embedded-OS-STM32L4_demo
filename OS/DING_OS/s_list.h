@@ -1,48 +1,38 @@
 /*!*****************************************************************************
- * file		s_list.h (another implementation of single List)
+ * file		s_list.h (Single List)
  * $Author: sunce.ding
  *******************************************************************************/
 
-#ifndef s_list_H_
-#define s_list_H_
+#ifndef S_LIST_H_
+#define S_LIST_H_
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+#include "d_os.h"
 #include "define.h"
 
-  typedef void **s_list_t;
+  typedef struct SList
+  {
+    struct SList *next;
+  } SList_t;
 
-#define LIST(name)                                                                                 \
-  static void    *name##List = NULL;                                                               \
-  static s_list_t name = (s_list_t) & name##List
+  void     SList_Init(SList_t *list);
+  void     SList_Add(SList_t *listHeader, SList_t *entry);
+  void     SList_Push(SList_t *listHeader, SList_t *entry);
+  SList_t *SList_Pop(SList_t *listHeader);
+  SList_t *SList_Chop(SList_t *listHeader);
+  bool     SList_IsEmpty(SList_t *listHeader);
+  u16      SList_Len(const SList_t *listHeader);
+  void     SList_Remove(SList_t *listHeader, SList_t *entry);
 
-#define LIST_STRUCT(name)                                                                          \
-  void    *name##List;                                                                             \
-  s_list_t name
+#define SLIST_INIT(name) {NULL}
 
-#define LIST_STRUCT_INIT(struct_ptr, name)                                                         \
-  (struct_ptr)->name##List = NULL;                                                                 \
-  (struct_ptr)->name = (s_list_t) & ((struct_ptr)->name##List);                                    \
-  List_Init((struct_ptr)->name)
+#define SLIST(name) static SList_t name = SLIST_INIT(name)
 
-#define LIST_HEADER void *next
-
-  void  List_Init(s_list_t list);
-  void *List_Head(s_list_t list);
-  void *List_Tail(s_list_t list);
-  void *List_Pop(s_list_t list);
-  void  List_Push(s_list_t list, void *item);
-  void *List_Chop(s_list_t list);
-  void  List_Add(s_list_t list, void *item);
-  void  List_Remove(s_list_t list, void *item);
-  bool  List_IsEmpty(s_list_t list);
-  u32   List_Length(s_list_t list);
-  void  List_Copy(s_list_t dest, s_list_t src);
-  void  List_Insert(s_list_t list, void *prevItem, void *newItem);
-  void *List_ItemNext(void *item);
+#define PUBLIC_SLIST(name) SList_t name = SLIST_INIT(name)
 
 #ifdef __cplusplus
 }

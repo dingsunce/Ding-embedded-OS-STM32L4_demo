@@ -1,7 +1,7 @@
+#include "d_list.h"
 #include "d_mem.h"
 #include "error.h"
 #include "i2c_func.h"
-#include "s_list.h"
 #include "stm32ll_i2c_impl.h"
 
 #define I2C_REPAIR_INTERVAL 20 // 20ms
@@ -15,7 +15,7 @@ typedef enum
 
 typedef struct
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   I2cType_t       Type;
   u8              Addr;
   u16             Memory;
@@ -24,7 +24,7 @@ typedef struct
   u8              Length;
 } I2cElement_t;
 
-LIST(I2cList);
+DLIST(I2cList);
 static I2cElement_t *pCurrent = NULL;
 
 static I2cMode_t I2cMode = I2C_IDLE;
@@ -36,7 +36,7 @@ void I2c_Init(void)
 {
   I2cImpl_Init();
 
-  List_Init(I2cList);
+  DList_Init(I2cList);
 }
 
 static bool I2c_IsAvailableAndRepair(void)
@@ -90,7 +90,7 @@ void I2c_Process(void)
     if (!I2c_IsAvailableAndRepair())
       return;
 
-    pCurrent = List_Pop(I2cList);
+    pCurrent = DList_Pop(I2cList);
     if (pCurrent != NULL)
     {
       if (pCurrent->Type == I2C_TX)
@@ -182,7 +182,7 @@ static OsErr_t I2c_StoreList(I2cType_t type, u8 addr, u16 memory, I2cMemorySize_
     }
     pElement->Length = length;
 
-    List_Add(I2cList, pElement);
+    DList_Add(I2cList, pElement);
 
     return OS_ERR_OK;
   }

@@ -6,14 +6,14 @@
 
 typedef struct
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   u8 *pData;
   u16 Length;
 } UartTxElement_t;
 
 typedef struct
 {
-  LIST_STRUCT(TxList);
+  DLIST_STRUCT(TxList);
 } Uart_t;
 
 static Uart_t Uart[UART_CHANNEL_SUM];
@@ -22,7 +22,7 @@ void Uart_Init(Uart_RcvFunc_t rcvFunc)
 {
   for (u8 i = 0; i < UART_CHANNEL_SUM; i++)
   {
-    LIST_STRUCT_INIT(&Uart[i], TxList);
+    DLIST_STRUCT_INIT(&Uart[i], TxList);
   }
 }
 
@@ -40,7 +40,7 @@ OsErr_t Uart_Send(u8 channel, const u8 *pData, u16 length)
     pElement->pData = pElementData;
     pElement->Length = length;
 
-    List_Add(Uart[channel].TxList, pElement);
+    DList_Add(Uart[channel].TxList, pElement);
 
     return OS_ERR_OK;
   }
@@ -75,7 +75,7 @@ static void FreeElement(UartTxElement_t *pElement)
 
 bool Uart_CompareTxBuffer(u8 channel, const u8 *pData, u16 length)
 {
-  UartTxElement_t *pElement = List_Pop(Uart[channel].TxList);
+  UartTxElement_t *pElement = DList_Pop(Uart[channel].TxList);
   if (pElement == NULL)
   {
     return false;

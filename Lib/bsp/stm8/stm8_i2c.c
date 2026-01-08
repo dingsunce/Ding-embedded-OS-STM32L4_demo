@@ -15,7 +15,7 @@ typedef enum
 
 typedef struct
 {
-  LIST_HEADER;
+  DLIST_HEADER;
   I2cType_t       Type;
   u8              Add;
   u16             Memory;
@@ -24,7 +24,7 @@ typedef struct
   u8              Length;
 } I2cElement_t;
 
-LIST(I2cList);
+DLIST(I2cList);
 static I2cElement_t *pCurrent = NULL;
 
 static I2cMode_t I2cMode = I2C_IDLE;
@@ -36,7 +36,7 @@ void I2c_Init(void)
 {
   I2cImpl_Init();
 
-  List_Init(I2cList);
+  DList_Init(I2cList);
 }
 
 static bool I2c_IsAvailableAndRepair(void)
@@ -92,7 +92,7 @@ void I2c_Process(void)
       return;
     }
 
-    pCurrent = List_Pop(I2cList);
+    pCurrent = DList_Pop(I2cList);
     if (pCurrent != NULL)
     {
       if (pCurrent->Type == I2C_TX)
@@ -186,7 +186,7 @@ static OsErr_t I2c_StoreList(I2cType_t type, u8 add, u8 memory, I2cMemorySize_t 
     }
     pElement->Length = length;
 
-    List_Add(I2cList, pElement);
+    DList_Add(I2cList, pElement);
 
     return OS_ERR_OK;
   }

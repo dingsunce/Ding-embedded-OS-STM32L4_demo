@@ -3,15 +3,15 @@
  * $Author: sunce.ding
  *******************************************************************************/
 #include "d_process.h"
-#include "DList.h"
 #include "d_mem.h"
 #include "d_message.h"
+#include "double_list.h"
 #include "osal.h"
 
 #define PROCESS_STATE_NONE    0
 #define PROCESS_STATE_RUNNING 1
 
-DLIST(MyProcessList);
+DB_LIST(MyProcessList);
 
 static volatile u8 PollRequested;
 static void        Do_Poll(void);
@@ -40,7 +40,7 @@ void DProcess_Init(void)
   // prevent reiniting the process
   DProcess_ExitAllProc();
 
-  DList_Init(&MyProcessList);
+  DoubleList_Init(&MyProcessList);
 
   ProcessPendingSem = os_sem_create(0);
   ProcessListSem = os_sem_create(1);
@@ -71,8 +71,8 @@ void DProcess_InitStructure(DProcess_t *p, DProcessHandler handler)
 
   os_sem_wait(ProcessListSem, OS_WAIT_FOREVER);
 
-  DList_Init(&p->ProcessList);
-  DList_Init(&p->TimerList);
+  DoubleList_Init(&p->ProcessList);
+  DoubleList_Init(&p->TimerList);
 
   os_sem_signal(ProcessListSem);
 
@@ -102,9 +102,9 @@ void DProcess_Start(DProcess_t *p)
 
   os_sem_wait(ProcessListSem, OS_WAIT_FOREVER);
 
-  DList_Init(&p->ProcessList);
-  DList_Init(&p->TimerList);
-  DList_Add(&MyProcessList, &p->ProcessList);
+  DoubleList_Init(&p->ProcessList);
+  DoubleList_Init(&p->TimerList);
+  DbList_Add(&MyProcessList, &p->ProcessList);
 
   os_sem_signal(ProcessListSem);
 
@@ -138,7 +138,7 @@ void DProcess_ExitProc(DProcess_t *p)
     p->State = PROCESS_STATE_NONE;
 
     os_sem_wait(ProcessListSem, OS_WAIT_FOREVER);
-    DList_Remove(&p->ProcessList);
+    DbList_Remove(&p->ProcessList);
     os_sem_signal(ProcessListSem);
 
     DMsg_Flush(p);
@@ -147,7 +147,7 @@ void DProcess_ExitProc(DProcess_t *p)
 //-----------------------------------------------------------------------------------------------------------
 void DProcess_ExitAllProc(void)
 {
-  DList_t *tmp = MyProcessList.next;
+  Db_List_t *tmp = MyProcessList.next;
   while (tmp != &MyProcessList)
   {
     DProcess_t *p = DContainerOf(tmp, DProcess_t, ProcessList);
@@ -159,7 +159,7 @@ void DProcess_ExitAllProc(void)
 static void Do_Poll(void)
 {
   PollRequested = 0;
-  DList_t *tmp = MyProcessList.next;
+  Db_List_t *tmp = MyProcessList.next;
   while (tmp != &MyProcessList)
   {
     DProcess_t *p = DContainerOf(tmp, DProcess_t, ProcessList);

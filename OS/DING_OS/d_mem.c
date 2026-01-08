@@ -5,16 +5,16 @@
 #include "d_mem.h"
 #include "osal.h"
 
-#if (MEM_DEBUG == 1)
+#if (DMEM_DEBUG == 1)
 
 static u16 MemAlo = 0;
 static u16 MemMaxAlo = 0;
-static u16 MemFree = MEM_HEAP;
+static u16 MemFree = DMEM_HEAP;
 static u16 MemAloFailed = 0;
 #endif
 
 // add a null block at the end
-static u8 TheHeap[MEM_HEAP + MEM_HEADER_SIZE];
+static u8 TheHeap[DMEM_HEAP + MEM_HEADER_SIZE];
 
 static MemHdr_t *FirstHeader;
 static MemHdr_t *FreeHeader; // pointer to the lowest free block
@@ -23,13 +23,13 @@ static MemHdr_t *EndHeader;
 static os_sem_t *MemSem;
 static bool      MemReady = false;
 //-----------------------------------------------------------------------------------------------------------
-#if (MEM_DEBUG == 1)
+#if (DMEM_DEBUG == 1)
 static void DMem_DebugInit(void)
 {
   MemAlo = 0;
   MemMaxAlo = 0;
   MemAloFailed = 0;
-  MemFree = MEM_HEAP;
+  MemFree = DMEM_HEAP;
 }
 //-----------------------------------------------------------------------------------------------------------
 static void DMem_DebugAllocate(MemHdr_t *hdr)
@@ -69,7 +69,7 @@ void DMem_Init(void)
   if (MemReady)
     return;
 
-#if (MEM_DEBUG == 1)
+#if (DMEM_DEBUG == 1)
   DMem_DebugInit();
 #endif
 
@@ -78,15 +78,15 @@ void DMem_Init(void)
   memset(TheHeap, 0, sizeof(TheHeap));
 
   FirstHeader = (MemHdr_t *)TheHeap;
-  FirstHeader->Len = MEM_HEAP;
+  FirstHeader->Len = DMEM_HEAP;
   FirstHeader->InUse = false;
 
-  EndHeader = (MemHdr_t *)(&TheHeap[MEM_HEAP]);
+  EndHeader = (MemHdr_t *)(&TheHeap[DMEM_HEAP]);
   EndHeader->Len = 0;
   EndHeader->InUse = true;
 
   FirstHeader->PreLen = 0;
-  EndHeader->PreLen = MEM_HEAP;
+  EndHeader->PreLen = DMEM_HEAP;
 
   FreeHeader = FirstHeader;
 
@@ -137,7 +137,7 @@ static void UpdateFreeHeader(MemHdr_t *hdr)
 //-----------------------------------------------------------------------------------------------------------
 void *DMem_Malloc(u16 size)
 {
-#if MEM_ALIGMENT_4BYTES
+#if DMEM_ALIGMENT_4BYTES
   size = ((size + 3) / 4) * 4;
 #endif
 
@@ -164,7 +164,7 @@ void *DMem_Malloc(u16 size)
 
   if (hdr == EndHeader)
   {
-#if (MEM_DEBUG == 1)
+#if (DMEM_DEBUG == 1)
     DMem_DebugAllocateFailed();
 #endif
 
@@ -179,7 +179,7 @@ void *DMem_Malloc(u16 size)
   UpdateFreeHeader(hdr);
   memset((u8 *)(hdr + 1), 0, (hdr->Len - MEM_HEADER_SIZE));
 
-#if (MEM_DEBUG == 1)
+#if (DMEM_DEBUG == 1)
   DMem_DebugAllocate(hdr);
 #endif
 
@@ -226,7 +226,7 @@ void DMem_Free(void *ptr)
   if (FreeHeader > hdr)
     FreeHeader = hdr;
 
-#if (MEM_DEBUG == 1)
+#if (DMEM_DEBUG == 1)
   DMem_DebugFree(hdr);
 #endif
 

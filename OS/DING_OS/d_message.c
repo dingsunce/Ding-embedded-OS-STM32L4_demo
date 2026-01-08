@@ -3,12 +3,12 @@
  * $Author: sunce.ding
  *******************************************************************************/
 #include "d_message.h"
-#include "DList.h"
+#include "d_list.h"
 #include "d_mem.h"
 #include "d_memb.h"
 #include "d_task.h"
+#include "double_list.h"
 #include "osal.h"
-#include "s_list.h"
 
 typedef struct MsgTimer
 {
@@ -17,25 +17,25 @@ typedef struct MsgTimer
   u32         TimeMatch;
   DMsgArg_t   Arg;
   DProcess_t *Process;
-  DList_t     ListInTimerTable;
-  DList_t     ListInProcess;
+  Db_List_t   ListInTimerTable;
+  Db_List_t   ListInProcess;
 } MsgTimer_t;
 
 typedef struct MsgTableItem
 {
-  DList_t TimerList;
+  Db_List_t TimerList;
 } MsgTableItem_t;
 
-DMEMB(MsgTimerMem, MsgTimer_t, MSG_TIMER_NUM);
+DMEMB(MsgTimerMem, MsgTimer_t, DMSG_TIMER_NUM);
 
-#if (MESSAGE_DEBUG == 1)
+#if (DMESSAGE_DEBUG == 1)
 static u16 MsgTimerMemAllocFailedNum = 0;
 static u16 MsgTimerMemAllocCurrentNum = 0;
 static u16 MsgTimerMemAllocMaxNum = 0;
 #endif
 
 static u32            TimerTick = 0;
-static MsgTableItem_t MsgTimerTable[MSG_TIMER_TABLE_SIZE];
+static MsgTableItem_t MsgTimerTable[DMSG_TIMER_TABLE_SIZE];
 static void           Msg_FreeTimer(MsgTimer_t *timer, bool freeArg);
 static void           InsertToTimerTable(MsgTimer_t *timer);
 
@@ -61,9 +61,9 @@ static os_return_t Msg_Thread(void *arg)
 //-----------------------------------------------------------------------------------------------------------
 static void InitTimerTable(void)
 {
-  for (u8 i = 0; i < MSG_TIMER_TABLE_SIZE; i++)
+  for (u8 i = 0; i < DMSG_TIMER_TABLE_SIZE; i++)
   {
-    DList_Init(&MsgTimerTable[i].TimerList);
+    DoubleList_Init(&MsgTimerTable[i].TimerList);
   }
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -107,12 +107,12 @@ void DMsg_RunOneTick(void)
 {
   TimerTick++;
 
-  u8              index = TimerTick % MSG_TIMER_TABLE_SIZE;
+  u8              index = TimerTick % DMSG_TIMER_TABLE_SIZE;
   MsgTableItem_t *table = MsgTimerTable + index;
 
   os_sem_wait(MsgListSem, OS_WAIT_FOREVER);
 
-  DList_t *tmp = table->TimerList.next;
+  Db_List_t *tmp = table->TimerList.next;
   while (tmp != &table->TimerList)
   {
     MsgTimer_t *timer = DContainerOf(tmp, MsgTimer_t, ListInTimerTable);
@@ -127,13 +127,13 @@ void DMsg_RunOneTick(void)
         // recalculate TimeMatch and decide which table timer it belongs to
         timer->TimeMatch = TimerTick + timer->TimePeriod;
 
-        DList_Remove(&timer->ListInTimerTable);
+        DbList_Remove(&timer->ListInTimerTable);
         InsertToTimerTable(timer);
       }
       else
       {
-        DList_Remove(&timer->ListInTimerTable);
-        DList_Remove(&timer->ListInProcess);
+        DbList_Remove(&timer->ListInTimerTable);
+        DbList_Remove(&timer->ListInProcess);
 
         // argument will be released in task
         Msg_FreeTimer(timer, false);
@@ -154,7 +154,7 @@ static MsgTimer_t *AllocateTimer(void)
 
   timer = (MsgTimer_t *)DMemb_Alloc(&MsgTimerMem);
 
-#if (MESSAGE_DEBUG == 1)
+#if (DMESSAGE_DEBUG == 1)
   if (timer != NULL)
   {
     MsgTimerMemAllocCurrentNum++;
@@ -174,7 +174,7 @@ static void FreeTimer(MsgTimer_t *timer)
 {
   DMemb_Free(&MsgTimerMem, timer);
 
-#if (MESSAGE_DEBUG == 1)
+#if (DMESSAGE_DEBUG == 1)
   if (MsgTimerMemAllocCurrentNum > 0)
     MsgTimerMemAllocCurrentNum--;
 #endif
@@ -187,7 +187,7 @@ static u32 RemainTime(MsgTimer_t *timer)
 //-----------------------------------------------------------------------------------------------------------
 static void InsertToTimerTable(MsgTimer_t *timer)
 {
-  u8              index = timer->TimeMatch % MSG_TIMER_TABLE_SIZE;
+  u8              index = timer->TimeMatch % DMSG_TIMER_TABLE_SIZE;
   MsgTableItem_t *table = MsgTimerTable + index;
 
   /*
@@ -195,10 +195,10 @@ static void InsertToTimerTable(MsgTimer_t *timer)
 
     all items in table have a match value smaller than timer
   */
-  DList_t *ListInsert = &table->TimerList;
-  DList_Init(&timer->ListInTimerTable);
+  Db_List_t *ListInsert = &table->TimerList;
+  DoubleList_Init(&timer->ListInTimerTable);
 
-  DList_t *tmp = table->TimerList.next;
+  Db_List_t *tmp = table->TimerList.next;
   while (tmp != &table->TimerList)
   {
     MsgTimer_t *timerInTable = DContainerOf(tmp, MsgTimer_t, ListInTimerTable);
@@ -212,7 +212,7 @@ static void InsertToTimerTable(MsgTimer_t *timer)
     tmp = tmp->next;
   }
 
-  DList_InsertBefore(ListInsert, &timer->ListInTimerTable);
+  DbList_InsertBefore(ListInsert, &timer->ListInTimerTable);
 }
 //-----------------------------------------------------------------------------------------------------------
 static OsErr_t Msg_Send(DProcess_t *process, DMsgId_t msgId, DMsgArg_t arg, u32 delay, u32 period)
@@ -242,11 +242,11 @@ static OsErr_t Msg_Send(DProcess_t *process, DMsgId_t msgId, DMsgArg_t arg, u32 
     timer->Arg = arg;
     timer->Process = process;
 
-    DList_Init(&timer->ListInProcess);
+    DoubleList_Init(&timer->ListInProcess);
 
     os_sem_wait(MsgListSem, OS_WAIT_FOREVER);
 
-    DList_Add(&process->TimerList, &timer->ListInProcess);
+    DbList_Add(&process->TimerList, &timer->ListInProcess);
     InsertToTimerTable(timer);
 
     os_sem_signal(MsgListSem);
@@ -299,7 +299,7 @@ void DMsg_CancelFirst(DProcess_t *process, DMsgId_t msgId)
 
   os_sem_wait(MsgListSem, OS_WAIT_FOREVER);
 
-  DList_t *tmp = process->TimerList.next;
+  Db_List_t *tmp = process->TimerList.next;
   while (tmp != &process->TimerList)
   {
     MsgTimer_t *timer = DContainerOf(tmp, MsgTimer_t, ListInProcess);
@@ -307,8 +307,8 @@ void DMsg_CancelFirst(DProcess_t *process, DMsgId_t msgId)
 
     if (timer->MsgId == msgId)
     {
-      DList_Remove(&timer->ListInProcess);
-      DList_Remove(&timer->ListInTimerTable);
+      DbList_Remove(&timer->ListInProcess);
+      DbList_Remove(&timer->ListInTimerTable);
       Msg_FreeTimer(timer, true);
       break;
     }
@@ -329,7 +329,7 @@ void DMsg_CancelAll(DProcess_t *process, DMsgId_t msgId)
 
   os_sem_wait(MsgListSem, OS_WAIT_FOREVER);
 
-  DList_t *tmp = process->TimerList.next;
+  Db_List_t *tmp = process->TimerList.next;
   while (tmp != &process->TimerList)
   {
     MsgTimer_t *timer = DContainerOf(tmp, MsgTimer_t, ListInProcess);
@@ -338,8 +338,8 @@ void DMsg_CancelAll(DProcess_t *process, DMsgId_t msgId)
     if (timer->MsgId == msgId)
     {
 
-      DList_Remove(&timer->ListInProcess);
-      DList_Remove(&timer->ListInTimerTable);
+      DbList_Remove(&timer->ListInProcess);
+      DbList_Remove(&timer->ListInTimerTable);
       Msg_FreeTimer(timer, true);
     }
   }
@@ -356,14 +356,14 @@ void DMsg_Flush(DProcess_t *process)
 
   os_sem_wait(MsgListSem, OS_WAIT_FOREVER);
 
-  DList_t *tmp = process->TimerList.next;
+  Db_List_t *tmp = process->TimerList.next;
   while (tmp != &process->TimerList)
   {
     MsgTimer_t *timer = DContainerOf(tmp, MsgTimer_t, ListInProcess);
     tmp = tmp->next;
 
-    DList_Remove(&timer->ListInProcess);
-    DList_Remove(&timer->ListInTimerTable);
+    DbList_Remove(&timer->ListInProcess);
+    DbList_Remove(&timer->ListInTimerTable);
 
     Msg_FreeTimer(timer, true);
   }
@@ -389,7 +389,7 @@ u32 DMsg_GetRemainTime(DProcess_t *process, DMsgId_t msgId)
   if (process == NULL)
     return 0;
 
-  DList_t *tmp = process->TimerList.next;
+  Db_List_t *tmp = process->TimerList.next;
   while (tmp != &process->TimerList)
   {
     MsgTimer_t *timer = DContainerOf(tmp, MsgTimer_t, ListInProcess);
@@ -407,7 +407,7 @@ bool DMsg_IsMsgInProcess(DProcess_t *process, DMsgId_t msgId)
   if (process == NULL)
     return false;
 
-  DList_t *tmp = process->TimerList.next;
+  Db_List_t *tmp = process->TimerList.next;
   while (tmp != &process->TimerList)
   {
     MsgTimer_t *timer = DContainerOf(tmp, MsgTimer_t, ListInProcess);

@@ -1,15 +1,15 @@
 /*!*****************************************************************************
- * file		DList.c  (Double List)
+ * file		double_list.c
  * $Author: sunce.ding
  *******************************************************************************/
-#include "DList.h"
+#include "double_list.h"
 //-----------------------------------------------------------------------------------------------------------
-void DList_Init(DList_t *list)
+void DoubleList_Init(Db_List_t *list)
 {
   list->next = list->prev = list;
 }
 //-----------------------------------------------------------------------------------------------------------
-static void Add(DList_t *entry, DList_t *prev, DList_t *next)
+static void Add(Db_List_t *entry, Db_List_t *prev, Db_List_t *next)
 {
   prev->next = entry;
   entry->prev = prev;
@@ -18,58 +18,58 @@ static void Add(DList_t *entry, DList_t *prev, DList_t *next)
   next->prev = entry;
 }
 //-----------------------------------------------------------------------------------------------------------
-void DList_Push(DList_t *listHeader, DList_t *entry)
+void DbList_Push(Db_List_t *listHeader, Db_List_t *entry)
 {
   // insert entry at beginning of a list header
   Add(entry, listHeader, listHeader->next);
 }
 //-----------------------------------------------------------------------------------------------------------
-void DList_InsertAfter(DList_t *list, DList_t *entry)
+void DbList_InsertAfter(Db_List_t *list, Db_List_t *entry)
 {
   // insert a entry after a list
   Add(entry, list, list->next);
 }
 //-----------------------------------------------------------------------------------------------------------
-void DList_Add(DList_t *listHeader, DList_t *entry)
+void DbList_Add(Db_List_t *listHeader, Db_List_t *entry)
 {
   // insert entry at end of a list header
   Add(entry, listHeader->prev, listHeader);
 }
 //-----------------------------------------------------------------------------------------------------------
-void DList_InsertBefore(DList_t *list, DList_t *entry)
+void DbList_InsertBefore(Db_List_t *list, Db_List_t *entry)
 {
   // insert a entry before a list
   Add(entry, list->prev, list);
 }
 //-----------------------------------------------------------------------------------------------------------
-static void Remove(DList_t *prev, DList_t *next)
+static void Remove(Db_List_t *prev, Db_List_t *next)
 {
   prev->next = next;
   next->prev = prev;
 }
 //-----------------------------------------------------------------------------------------------------------
-void DList_Remove(DList_t *entry)
+void DbList_Remove(Db_List_t *entry)
 {
   Remove(entry->prev, entry->next);
 }
 //-----------------------------------------------------------------------------------------------------------
-DList_t *DList_Pop(DList_t *listHeader)
+Db_List_t *DbList_Pop(Db_List_t *listHeader)
 {
   // Remove the first object on a list.
-  DList_t *got = listHeader->next;
+  Db_List_t *got = listHeader->next;
   if (got == listHeader)
     return NULL;
 
-  DList_Remove(got);
+  DbList_Remove(got);
   return got;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool DList_IsEmpty(DList_t *listHeader)
+bool DbList_IsEmpty(Db_List_t *listHeader)
 {
   return listHeader->next == listHeader;
 }
 //-----------------------------------------------------------------------------------------------------------
-void DList_Splice(DList_t *list, DList_t *append)
+void DbList_Splice(Db_List_t *list, Db_List_t *append)
 {
   // join two lists
   if (list == list->next) // empty list
@@ -78,9 +78,9 @@ void DList_Splice(DList_t *list, DList_t *append)
   if (append == append->next) // empty append list
     return;
 
-  DList_t *lastOfList = list->prev;
-  DList_t *firstOfAppend = append->next;
-  DList_t *lastOfAppend = append->prev;
+  Db_List_t *lastOfList = list->prev;
+  Db_List_t *firstOfAppend = append->next;
+  Db_List_t *lastOfAppend = append->prev;
 
   lastOfList->next = firstOfAppend;
   firstOfAppend->prev = lastOfList;
@@ -89,10 +89,10 @@ void DList_Splice(DList_t *list, DList_t *append)
   list->prev = lastOfAppend;
 }
 //-----------------------------------------------------------------------------------------------------------
-u16 DList_Len(const DList_t *listHeader)
+u16 DbList_Len(const Db_List_t *listHeader)
 {
-  unsigned int   len = 0;
-  const DList_t *p = listHeader;
+  unsigned int     len = 0;
+  const Db_List_t *p = listHeader;
   while (p->next != listHeader)
   {
     p = p->next;

@@ -23,41 +23,41 @@ extern "C"
 
 #define D_OS_VERSION 0x10
 
-#ifndef MEM_HEAP
-#define MEM_HEAP 20480
+#ifndef DMEM_HEAP
+#define DMEM_HEAP 20480
 #endif
 
-#if (MEM_HEAP & 0x80000)
+#if (DMEM_HEAP & 0x80000)
 #error MAXMEMHEAP is too big to manage!
 #endif
 
-#ifndef MEM_ALIGMENT_4BYTES
-#define MEM_ALIGMENT_4BYTES 1
+#ifndef DMEM_ALIGMENT_4BYTES
+#define DMEM_ALIGMENT_4BYTES 1
 #endif
 
-// MSG_TIMER_TABLE_SIZE is recommended to be a prime
-#ifndef MSG_TIMER_TABLE_SIZE
-#define MSG_TIMER_TABLE_SIZE 17
+// DMSG_TIMER_TABLE_SIZE is recommended to be a prime
+#ifndef DMSG_TIMER_TABLE_SIZE
+#define DMSG_TIMER_TABLE_SIZE 17
 #endif
 
-#ifndef MSG_TIMER_NUM
-#define MSG_TIMER_NUM 100
+#ifndef DMSG_TIMER_NUM
+#define DMSG_TIMER_NUM 100
 #endif
 
-#ifndef TASK_ITEM_NUM
-#define TASK_ITEM_NUM 100
+#ifndef DTASK_ITEM_NUM
+#define DTASK_ITEM_NUM 100
 #endif
 
-#ifndef MESSAGE_DEBUG
-#define MESSAGE_DEBUG 0
+#ifndef DMESSAGE_DEBUG
+#define DMESSAGE_DEBUG 0
 #endif
 
-#ifndef MEM_DEBUG
-#define MEM_DEBUG 0
+#ifndef DMEM_DEBUG
+#define DMEM_DEBUG 0
 #endif
 
-#ifndef TASK_DEBUG
-#define TASK_DEBUG 0
+#ifndef DTASK_DEBUG
+#define DTASK_DEBUG 0
 #endif
 
 #ifndef D_OS_PRIO
