@@ -3,7 +3,7 @@
  * $Author: sunce.ding
  *******************************************************************************/
 #include "hw_config.h"
-#include "SysTick.h"
+#include "d_tick.h"
 #ifndef KNX_UNIT_TEST
 #include "main.h"
 #endif
@@ -22,10 +22,10 @@ void hw_reset(void)
 //-----------------------------------------------------------------------------------------------------------
 uint32_t HAL_GetTick(void)
 {
-  return SysTick_GetCurTicks();
+  return DTick_GetCurTicks();
 }
 //-----------------------------------------------------------------------------------------------------------
 void HAL_Delay(uint32_t delay)
 {
-  SysTick_DelayMs(delay);
+  DTick_DelayMs(delay);
 }

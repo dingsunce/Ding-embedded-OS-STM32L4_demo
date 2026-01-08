@@ -1,4 +1,4 @@
-#include "SysTick.h"
+#include "d_tick.h"
 #include "d_mem.h"
 #include "eeprom_func.h"
 #include "s_list.h"
@@ -6,53 +6,53 @@
 #include "wdg_func.h"
 
 #if defined AT24C01
-#define EE_PAGE_SIZE       8
-#define EE_TOTAL_SIZE      128
+#define EE_PAGE_SIZE 8
+#define EE_TOTAL_SIZE 128
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C02
-#define EE_PAGE_SIZE       8
-#define EE_TOTAL_SIZE      256
+#define EE_PAGE_SIZE 8
+#define EE_TOTAL_SIZE 256
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C04
-#define EE_PAGE_SIZE       16
-#define EE_TOTAL_SIZE      512
+#define EE_PAGE_SIZE 16
+#define EE_TOTAL_SIZE 512
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C08
-#define EE_PAGE_SIZE       16
-#define EE_TOTAL_SIZE      1024
+#define EE_PAGE_SIZE 16
+#define EE_TOTAL_SIZE 1024
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C16
-#define EE_PAGE_SIZE       16
-#define EE_TOTAL_SIZE      2048
+#define EE_PAGE_SIZE 16
+#define EE_TOTAL_SIZE 2048
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_8BIT
 
 #elif defined AT24C32
-#define EE_PAGE_SIZE       32
-#define EE_TOTAL_SIZE      4096
+#define EE_PAGE_SIZE 32
+#define EE_TOTAL_SIZE 4096
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C64
-#define EE_PAGE_SIZE       32
-#define EE_TOTAL_SIZE      8192
+#define EE_PAGE_SIZE 32
+#define EE_TOTAL_SIZE 8192
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C128
-#define EE_PAGE_SIZE       64
-#define EE_TOTAL_SIZE      16384
+#define EE_PAGE_SIZE 64
+#define EE_TOTAL_SIZE 16384
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C256
-#define EE_PAGE_SIZE       64
-#define EE_TOTAL_SIZE      32768
+#define EE_PAGE_SIZE 64
+#define EE_TOTAL_SIZE 32768
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #elif defined AT24C512
-#define EE_PAGE_SIZE       128
-#define EE_TOTAL_SIZE      65536
+#define EE_PAGE_SIZE 128
+#define EE_TOTAL_SIZE 65536
 #define EE_I2C_MEMORY_SIZE I2C_MEMORY_16BIT
 
 #endif
@@ -69,8 +69,8 @@
 
 #endif
 
-#define EE_WAIT_TIMEOUT 5  // 5ms
-#define EE_WRITE_TIME   15 // 15ms
+#define EE_WAIT_TIMEOUT 5 // 5ms
+#define EE_WRITE_TIME 15  // 15ms
 
 //// Call Ee_Process() I2c_Process() every 20ms if EE_DIRECT_WRITE == 0
 #ifndef EE_DIRECT_WRITE
@@ -83,7 +83,7 @@ typedef struct
 {
   LIST_HEADER;
   EeAdd_t Addr;
-  u8      Value;
+  u8 Value;
 } EeElement_t;
 
 LIST(EeList);
@@ -116,10 +116,10 @@ void Ee_Process(void)
 
 static OsErr_t WaitI2cTxRxComplete(void)
 {
-  u32 startTick = SysTick_GetCurTicks();
+  u32 startTick = DTick_GetCurTicks();
   while (!I2cImpl_IsTxRxComplete())
   {
-    if ((SysTick_GetCurTicks() - startTick) >= EE_WAIT_TIMEOUT)
+    if ((DTick_GetCurTicks() - startTick) >= EE_WAIT_TIMEOUT)
     {
       return OS_ERR_BUSY;
     }
@@ -219,8 +219,8 @@ void Ee_StopDirectWrite(void)
 
 static void WaitEeWriteComplete(void)
 {
-  u32 startTick = SysTick_GetCurTicks();
-  while ((SysTick_GetCurTicks() - startTick) < EE_WRITE_TIME)
+  u32 startTick = DTick_GetCurTicks();
+  while ((DTick_GetCurTicks() - startTick) < EE_WRITE_TIME)
   {
   }
 }

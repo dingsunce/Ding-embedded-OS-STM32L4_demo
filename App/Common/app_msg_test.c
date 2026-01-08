@@ -3,9 +3,9 @@
  * $Author: sunce.ding
  *******************************************************************************/
 #include "app_msg_test.h"
+#include "d_message.h"
 #include "d_os.h"
-#include "message.h"
-#include "process.h"
+#include "d_process.h"
 
 #define TIMER_INSTANT 0
 #define TIMER_LATER   1
@@ -27,16 +27,16 @@ PROCESS_HANDLER(TimerProcess, msgId, arg)
 
     if (msgId == TIMER_INSTANT)
     {
-      Process_Poll(&FunctionProcess);
+      DProcess_Poll(&FunctionProcess);
     }
     else if (msgId == TIMER_LATER)
     {
-      Msg_SendLater(&FunctionProcess, FUNCTION_LATER, NULL, 10);
+      DMsg_SendLater(&FunctionProcess, FUNCTION_LATER, NULL, 10);
     }
     else if (msgId == TIMER_CYCLE)
     {
-      Msg_Cancel(&FunctionProcess, FUNCTION_CYCLE);
-      Msg_SendLater(&FunctionProcess, FUNCTION_CYCLE, NULL, 10);
+      DMsg_Cancel(&FunctionProcess, FUNCTION_CYCLE);
+      DMsg_SendLater(&FunctionProcess, FUNCTION_CYCLE, NULL, 10);
     }
   }
 
@@ -80,12 +80,12 @@ PROCESS_HANDLER(FunctionProcess, msgId, arg)
 //-----------------------------------------------------------------------------------------------------------
 void app_msg_test_start(void)
 {
-  Process_Start(&TimerProcess);
-  Process_Start(&FunctionProcess);
+  DProcess_Start(&TimerProcess);
+  DProcess_Start(&FunctionProcess);
 
-  Msg_SendInstant(&TimerProcess, TIMER_INSTANT, NULL);
-  Msg_SendLater(&TimerProcess, TIMER_LATER, NULL, 10);
-  Msg_SendCycle(&TimerProcess, TIMER_CYCLE, NULL, 3000);
+  DMsg_SendInstant(&TimerProcess, TIMER_INSTANT, NULL);
+  DMsg_SendLater(&TimerProcess, TIMER_LATER, NULL, 10);
+  DMsg_SendCycle(&TimerProcess, TIMER_CYCLE, NULL, 3000);
 
   OS_PRINT("MSG Test Start\n");
 }

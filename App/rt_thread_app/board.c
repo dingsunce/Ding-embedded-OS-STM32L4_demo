@@ -6,12 +6,12 @@
 
 #include <rthw.h>
 #include <rtthread.h>
-#include "SysTick.h"
+#include "d_tick.h"
 //-----------------------------------------------------------------------------------------------------------
 void rt_os_tick_callback(void)
 {
   rt_interrupt_enter();
-  
+
   rt_tick_increase();
 
   rt_interrupt_leave();
@@ -20,8 +20,8 @@ void rt_os_tick_callback(void)
 void rt_thread_set_hook(void)
 {
   rt_interrupt_enter();
-  
-  rt_tick_sethook(SysTick_On);
+
+  rt_tick_sethook(DTick_On);
 
   rt_interrupt_leave();
 }
@@ -41,8 +41,6 @@ INIT_BOARD_EXPORT(uart_init);
 
 void rt_hw_console_output(const char *str)
 {
-
 }
 
 #endif
-

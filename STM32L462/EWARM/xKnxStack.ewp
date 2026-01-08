@@ -4941,16 +4941,40 @@
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\d_mem.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_memb.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_memb.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_message.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_message.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\d_os.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\d_os.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_process.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_process.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\d_task.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\d_task.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_tick.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\OS\DING_OS\d_tick.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\define.h</name>
@@ -4968,24 +4992,6 @@
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\lc-switch.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\memb.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\memb.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\message.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\message.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\process.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\process.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\pt.h</name>
             </file>
             <file>
@@ -4999,12 +5005,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\OS\DING_OS\SList.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\SysTick.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\OS\DING_OS\SysTick.h</name>
             </file>
         </group>
         <group>

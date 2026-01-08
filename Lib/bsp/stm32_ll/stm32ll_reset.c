@@ -1,5 +1,5 @@
-#include "message.h"
-#include "process.h"
+#include "d_message.h"
+#include "d_process.h"
 #include "reset_func.h"
 #include "stm32ll.h"
 
@@ -22,23 +22,23 @@ PROCESS_HANDLER(ResetProcess, msgId, arg)
 //-----------------------------------------------------------------------------------------------------------
 void Reset_Init(void)
 {
-  Process_Start(&ResetProcess);
+  DProcess_Start(&ResetProcess);
 }
 //-----------------------------------------------------------------------------------------------------------
 void Reset_Start(u32 delay)
 {
-  Msg_Cancel(&ResetProcess, RESET_MESSAGE);
-  Msg_SendLater(&ResetProcess, RESET_MESSAGE, NULL, delay);
+  DMsg_Cancel(&ResetProcess, RESET_MESSAGE);
+  DMsg_SendLater(&ResetProcess, RESET_MESSAGE, NULL, delay);
 }
 //-----------------------------------------------------------------------------------------------------------
 void Reset_Cancel(void)
 {
-  Msg_Cancel(&ResetProcess, RESET_MESSAGE);
+  DMsg_Cancel(&ResetProcess, RESET_MESSAGE);
 }
 //-----------------------------------------------------------------------------------------------------------
 u32 Reset_GetResetRemainTimer(void)
 {
-  return Msg_GetRemainTime(&ResetProcess, RESET_MESSAGE);
+  return DMsg_GetRemainTime(&ResetProcess, RESET_MESSAGE);
 }
 //-----------------------------------------------------------------------------------------------------------
 void Reset_Mcu(void)

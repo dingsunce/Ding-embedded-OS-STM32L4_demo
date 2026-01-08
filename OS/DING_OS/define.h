@@ -16,9 +16,9 @@ extern "C"
 #define NULL 0
 #endif
 
-  typedef u16   MsgId_t;    // Message id type.
-  typedef u32   MsgDelay_t; // Message delay type.
-  typedef void *MsgArg_t;   // Message argument type.
+  typedef u16   DMsgId_t;    // Message id type.
+  typedef u32   DMsgDelay_t; // Message delay type.
+  typedef void *DMsgArg_t;   // Message argument type.
 
 #ifndef LOBYTE
 #define LOBYTE(x) ((u8)((x) & 0x00ff))

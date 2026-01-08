@@ -18,7 +18,8 @@ extern "C"
   void DOS_RunOneTick(void);
   void DOS_Run(void);
 
-#define ContainerOf(ptr, type, member) ((type *)((char *)(ptr) - (uintptr_t)(&((type *)0)->member)))
+#define DContainerOf(ptr, type, member)                                                            \
+  ((type *)((char *)(ptr) - (uintptr_t)(&((type *)0)->member)))
 
 #define D_OS_VERSION 0x10
 

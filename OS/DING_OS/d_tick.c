@@ -1,78 +1,78 @@
 /*!*****************************************************************************
- * file		SysTick.c
+ * file		d_tick.c
  * $Author: sunce.ding
  *******************************************************************************/
-#include "SysTick.h"
-#include "memb.h"
-#include "message.h"
+#include "d_tick.h"
+#include "d_memb.h"
+#include "d_message.h"
 #include "s_list.h"
 
 static volatile u32  CurTicks = 0;
 static volatile bool TickOn = false;
 //-----------------------------------------------------------------------------------------------------------
-u32 SysTick_GetCurTicks(void)
+u32 DTick_GetCurTicks(void)
 {
   return CurTicks;
 }
 //-----------------------------------------------------------------------------------------------------------
-u32 sys_now(void)
+u32 DTick_Now(void)
 {
   return CurTicks * OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_Init(void)
+void DTick_Init(void)
 {
   CurTicks = 0;
   TickOn = false;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool SysTick_IsTickOn(void)
+bool DTick_IsTickOn(void)
 {
   return TickOn;
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_ResetTickOn(void)
+void DTick_ResetTickOn(void)
 {
   TickOn = false;
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_On(void)
+void DTick_On(void)
 {
   CurTicks++;
 
   TickOn = true;
 
-  Msg_PostSem();
+  DMsg_PostSem();
 }
 //-----------------------------------------------------------------------------------------------------------
-u32 SysTick_GetDelayMs(u32 nOldTime)
+u32 DTick_GetDelayMs(u32 nOldTime)
 {
   u32 delay;
 
-  if (sys_now() >= nOldTime)
-    delay = sys_now() - nOldTime;
+  if (DTick_Now() >= nOldTime)
+    delay = DTick_Now() - nOldTime;
   else
-    delay = 0xffffffff - nOldTime + sys_now();
+    delay = 0xffffffff - nOldTime + DTick_Now();
 
   return delay;
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_DelayMs(u32 delay)
+void DTick_DelayMs(u32 delay)
 {
-  u32 tickstart = sys_now();
+  u32 tickstart = DTick_Now();
   u32 wait = delay;
 
-  while ((sys_now() - tickstart) < wait)
+  while ((DTick_Now() - tickstart) < wait)
   {
   }
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_Update(u32 pTime)
+void DTick_Update(u32 pTime)
 {
   CurTicks = CurTicks + pTime / OS_TICK_PERIOD_MS;
 }
 //-----------------------------------------------------------------------------------------------------------
-void SysTick_Reset(void)
+void DTick_Reset(void)
 {
   CurTicks = 0;
   TickOn = false;

@@ -31,16 +31,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SysTick.h"
+#include "d_tick.h"
 #include "app_ipc_test.h"
 #include "app_msg_test.h"
 #include "d_os.h"
 #include "wdg_func.h"
 
 #define OS_NON_PREEPTIVE 0
-#define OS_UCOS          1
-#define OS_RT_THREAD     2
-#define OS_FREE_RTOS     3
+#define OS_UCOS 1
+#define OS_RT_THREAD 2
+#define OS_FREE_RTOS 3
 
 #if OS_TYPE == OS_UCOS
 #include "bsp.h"
@@ -101,9 +101,8 @@ void App_TaskStart(void *p_arg)
   DOS_Init();
 
   app_msg_test_start();
-  
-  app_pic_test_start();
 
+  app_pic_test_start();
 
   while (!os_thread_should_stop(TaskStartThread))
   {
@@ -112,7 +111,7 @@ void App_TaskStart(void *p_arg)
 
     Wdg_Clear();
   }
-  
+
   OS_RETURN(TaskStartThread);
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -185,8 +184,8 @@ int main(void)
   os_start(); // start first thread if using preemptive os, never return
 
   DOS_Init();
-  SysTick_Reset();
-  
+  DTick_Reset();
+
   app_msg_test_start();
   /* USER CODE END 2 */
 
@@ -199,9 +198,9 @@ int main(void)
     /* USER CODE BEGIN 3 */
     DOS_Run();
 
-    if (SysTick_IsTickOn())
+    if (DTick_IsTickOn())
     {
-      SysTick_ResetTickOn();
+      DTick_ResetTickOn();
 
       DOS_RunOneTick();
 

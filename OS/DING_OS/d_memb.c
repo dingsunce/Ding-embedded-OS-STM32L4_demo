@@ -1,17 +1,17 @@
 /*!*****************************************************************************
- * file		memb.c(Implementation of memory block)
+ * file		d_memb.c(Implementation of memory block)
  * $Author: sunce.ding
  *******************************************************************************/
-#include "memb.h"
+#include "d_memb.h"
 
 //-----------------------------------------------------------------------------------------------------------
-void Memb_Init(Memb_t *m)
+void DMemb_Init(DMemb_t *m)
 {
   SList_Init(&m->FreeList);
   memset(m->Mem, 0, m->Size * m->Num);
   for (u16 i = 0; i < m->Num; i++)
   {
-    Memblock_t *block = m->block + i;
+    DMemblock_t *block = m->block + i;
     SList_Init(&block->list);
     block->index = i;
     block->InUse = false;
@@ -21,14 +21,14 @@ void Memb_Init(Memb_t *m)
   m->Sem = os_sem_create(1);
 }
 //-----------------------------------------------------------------------------------------------------------
-void *Memb_Alloc(Memb_t *m)
+void *DMemb_Alloc(DMemb_t *m)
 {
   os_sem_wait(m->Sem, OS_WAIT_FOREVER);
 
   SList_t *myList = SList_Pop(&m->FreeList);
   if (myList != NULL)
   {
-    Memblock_t *block = ContainerOf(myList, Memblock_t, list);
+    DMemblock_t *block = DContainerOf(myList, DMemblock_t, list);
     block->InUse = true;
 
     os_sem_signal(m->Sem);
@@ -41,7 +41,7 @@ void *Memb_Alloc(Memb_t *m)
   return NULL;
 }
 //-----------------------------------------------------------------------------------------------------------
-s8 Memb_Free(Memb_t *m, void *ptr)
+s8 DMemb_Free(DMemb_t *m, void *ptr)
 {
   if (ptr < m->Mem || ptr > (void *)((u8 *)m->Mem + (m->Num * m->Size)))
     return -1;
@@ -53,7 +53,7 @@ s8 Memb_Free(Memb_t *m, void *ptr)
 
   os_sem_wait(m->Sem, OS_WAIT_FOREVER);
 
-  Memblock_t *block = m->block + index;
+  DMemblock_t *block = m->block + index;
   if (block->InUse)
   {
     block->InUse = false;
@@ -69,7 +69,7 @@ s8 Memb_Free(Memb_t *m, void *ptr)
   return -1;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool Memb_InMem(Memb_t *m, void *ptr)
+bool DMemb_InMem(DMemb_t *m, void *ptr)
 {
   if (ptr < m->Mem || ptr > (void *)((u8 *)m->Mem + (m->Num * m->Size)))
     return false;
@@ -79,12 +79,12 @@ bool Memb_InMem(Memb_t *m, void *ptr)
   if (offset != 0)
     return false;
 
-  Memblock_t *block = m->block + index;
+  DMemblock_t *block = m->block + index;
 
   return block->InUse;
 }
 //-----------------------------------------------------------------------------------------------------------
-u16 Memb_NumFree(Memb_t *m)
+u16 DMemb_NumFree(DMemb_t *m)
 {
   u16      numFree = 0;
   SList_t *tmp = m->FreeList.next;
@@ -97,7 +97,7 @@ u16 Memb_NumFree(Memb_t *m)
   return numFree;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool Memb_HasFreeNum(Memb_t *m)
+bool DMemb_HasFreeNum(DMemb_t *m)
 {
   SList_t *tmp = m->FreeList.next;
   while (tmp != NULL)

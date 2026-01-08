@@ -1,11 +1,11 @@
 /*!*****************************************************************************
- * file		process.c
+ * file		d_process.c
  * $Author: sunce.ding
  *******************************************************************************/
-#include "process.h"
+#include "d_process.h"
 #include "DList.h"
 #include "d_mem.h"
-#include "message.h"
+#include "d_message.h"
 #include "osal.h"
 
 #define PROCESS_STATE_NONE    0
@@ -29,16 +29,16 @@ static os_return_t Process_Thread(void *arg)
     if (os_thread_should_stop(ProcessThread))
       break;
 
-    Process_Run();
+    DProcess_Run();
   }
 
   OS_RETURN(ProcessThread);
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_Init(void)
+void DProcess_Init(void)
 {
   // prevent reiniting the process
-  Process_ExitAll();
+  DProcess_ExitAllProc();
 
   DList_Init(&MyProcessList);
 
@@ -61,7 +61,7 @@ void DProcess_Exit(void)
   OS_PRINT("ProcessThread Exit\n");
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_InitStructure(Process_t *p, ProcessHandler handler)
+void DProcess_InitStructure(DProcess_t *p, DProcessHandler handler)
 {
   if (p->Handler != NULL) // already Initialized Process
     return;
@@ -80,18 +80,18 @@ void Process_InitStructure(Process_t *p, ProcessHandler handler)
   p->NeedPoll = false;
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_InitStruct(Process_t *p, ProcessHandler handler, const char *name)
+void DProcess_InitStruct(DProcess_t *p, DProcessHandler handler, const char *name)
 {
   // already Initialized Process
   if (p->Handler != NULL)
     return;
 
-  Process_InitStructure(p, handler);
+  DProcess_InitStructure(p, handler);
 
   p->name = name;
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_Start(Process_t *p)
+void DProcess_Start(DProcess_t *p)
 {
   // it is a UnInitialized Process
   if (p->Handler == NULL)
@@ -111,29 +111,29 @@ void Process_Start(Process_t *p)
   p->State = PROCESS_STATE_RUNNING;
   PT_INIT(&p->Pt);
 
-  Process_HandleMsg(p, SYS_MSG_START_PROGRESS, NULL);
+  DProcess_HandleMsg(p, SYS_MSG_START_PROGRESS, NULL);
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_ReStart(Process_t *p)
+void DProcess_ReStart(DProcess_t *p)
 {
-  Process_Exit(p);
+  DProcess_ExitProc(p);
   PT_INIT(&p->Pt);
-  Process_Start(p);
+  DProcess_Start(p);
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_HandleMsg(Process_t *p, MsgId_t msg, MsgArg_t data)
+void DProcess_HandleMsg(DProcess_t *p, DMsgId_t msg, DMsgArg_t data)
 {
   if ((p->State & PROCESS_STATE_RUNNING) && p->Handler != NULL)
   {
     u8 ret = p->Handler(p, msg, data);
     if (ret == PT_EXITED || ret == PT_ENDED)
-      Process_Exit(p);
+      DProcess_ExitProc(p);
   }
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_Exit(Process_t *p)
+void DProcess_ExitProc(DProcess_t *p)
 {
-  if (Process_IsRunning(p))
+  if (DProcess_IsRunning(p))
   {
     p->State = PROCESS_STATE_NONE;
 
@@ -141,18 +141,18 @@ void Process_Exit(Process_t *p)
     DList_Remove(&p->ProcessList);
     os_sem_signal(ProcessListSem);
 
-    Msg_Flush(p);
+    DMsg_Flush(p);
   }
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_ExitAll(void)
+void DProcess_ExitAllProc(void)
 {
   DList_t *tmp = MyProcessList.next;
   while (tmp != &MyProcessList)
   {
-    Process_t *p = ContainerOf(tmp, Process_t, ProcessList);
+    DProcess_t *p = DContainerOf(tmp, DProcess_t, ProcessList);
     tmp = tmp->next;
-    Process_Exit(p);
+    DProcess_ExitProc(p);
   }
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ static void Do_Poll(void)
   DList_t *tmp = MyProcessList.next;
   while (tmp != &MyProcessList)
   {
-    Process_t *p = ContainerOf(tmp, Process_t, ProcessList);
+    DProcess_t *p = DContainerOf(tmp, DProcess_t, ProcessList);
     tmp = tmp->next;
 
     if (p->NeedPoll)
@@ -173,13 +173,13 @@ static void Do_Poll(void)
   }
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_Run(void)
+void DProcess_Run(void)
 {
   if (PollRequested)
     Do_Poll();
 }
 //-----------------------------------------------------------------------------------------------------------
-void Process_Poll(Process_t *p)
+void DProcess_Poll(DProcess_t *p)
 {
   if (p != NULL)
   {
@@ -193,14 +193,14 @@ void Process_Poll(Process_t *p)
   }
 }
 //-----------------------------------------------------------------------------------------------------------
-bool Process_IsRunning(Process_t *p)
+bool DProcess_IsRunning(DProcess_t *p)
 {
   return p->State == PROCESS_STATE_RUNNING;
 }
 //-----------------------------------------------------------------------------------------------------------
-void *CreateProcessArg(Process_t *p)
+void *DProcess_CreateArg(DProcess_t *p)
 {
-  ProcessArg_t *arg = (ProcessArg_t *)DMem_Malloc(sizeof(ProcessArg_t));
+  DProcessArg_t *arg = (DProcessArg_t *)DMem_Malloc(sizeof(DProcessArg_t));
   if (arg != NULL)
     arg->Process = p;
 

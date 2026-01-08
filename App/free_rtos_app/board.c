@@ -4,27 +4,27 @@
  * $Author: sunce.ding
  *******************************************************************************/
 
-#include "SysTick.h"
+#include "d_tick.h"
 #include "FreeRTOSConfig.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
-extern void xPortSysTickHandler( void );
+extern void xPortSysTickHandler(void);
 //-----------------------------------------------------------------------------------------------------------
-void vApplicationTickHook( void )
+void vApplicationTickHook(void)
 {
-  SysTick_On();
+  DTick_On();
 }
 //-----------------------------------------------------------------------------------------------------------
 void SysTick_Handler(void)
 {
-  if(xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
     xPortSysTickHandler();
 }
 //-----------------------------------------------------------------------------------------------------------
-void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName)
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
-  while(1)
+  while (1)
   {
   }
 }
