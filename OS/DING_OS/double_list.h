@@ -26,12 +26,10 @@ extern "C"
   Db_List_t *DbList_Pop(Db_List_t *listHeader);
   bool       DbList_IsEmpty(Db_List_t *listHeader);
   u16        DbList_Len(const Db_List_t *listHeader);
-
-  void DbList_InsertBefore(Db_List_t *list, Db_List_t *entry);
-  void DbList_InsertAfter(Db_List_t *list, Db_List_t *entry);
-  void DbList_Remove(Db_List_t *entry);
-
-  void DbList_Splice(Db_List_t *list, Db_List_t *append);
+  void       DbList_InsertBefore(Db_List_t *list, Db_List_t *entry);
+  void       DbList_InsertAfter(Db_List_t *list, Db_List_t *entry);
+  void       DbList_Remove(Db_List_t *entry);
+  void       DbList_Splice(Db_List_t *list, Db_List_t *append);
 
 #define DB_LIST_INIT(name) {&(name), &(name)}
 
