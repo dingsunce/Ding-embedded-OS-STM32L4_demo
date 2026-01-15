@@ -20,6 +20,18 @@ extern "C"
   typedef u32   DMsgDelay_t; // Message delay type.
   typedef void *DMsgArg_t;   // Message argument type.
 
+#ifndef LO_U8
+#define LO_U8(x) ((u8)((x) & 0x0f))
+#endif
+
+#ifndef HI_U8
+#define HI_U8(x) ((u8)((x) >> 4))
+#endif
+
+#ifndef BUILD_U8
+#define BUILD_U8(nHigh, nLow) ((u8)((u8)(nHigh) << 4) + (u8)((u8)(nLow)))
+#endif
+
 #ifndef LO_U16
 #define LO_U16(x) ((u8)((x) & 0x00ff))
 #endif
