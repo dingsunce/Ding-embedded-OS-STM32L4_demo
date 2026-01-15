@@ -10,8 +10,8 @@ extern "C"
 {
 #endif
 
+#include "d_define.h"
 #include "d_os.h"
-#include "define.h"
 
   typedef struct MemHdr
   {

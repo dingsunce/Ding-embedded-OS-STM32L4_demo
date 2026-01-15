@@ -1,7 +1,7 @@
 #ifndef _STM8_UART_IMPL_H
 #define _STM8_UART_IMPL_H
 
-#include "define.h"
+#include "d_define.h"
 
 extern void UartImpl_Init(void);
 

@@ -1,8 +1,8 @@
 #ifndef _TCP_FUNC_H
 #define _TCP_FUNC_H
 
-#include "define.h"
-#include "error.h"
+#include "d_define.h"
+#include "d_error.h"
 
 typedef void (*Tcp_RcvFunc_t)(u8 channel, const u8 *pData, u16 length);
 

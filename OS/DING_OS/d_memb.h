@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-#include "define.h"
+#include "d_define.h"
 #include "osal.h"
 #include "s_list.h"
 

@@ -1,7 +1,7 @@
 #ifndef _DEBUG_FUNC_H
 #define _DEBUG_FUNC_H
 
-#include "define.h"
+#include "d_define.h"
 
 // #define ENABLE_DEBUG
 

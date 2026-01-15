@@ -1,7 +1,7 @@
 #ifndef _STM8_PWM_IMPL_H
 #define _STM8_PWM_IMPL_H
 
-#include "define.h"
+#include "d_define.h"
 
 #ifndef CLOCK_FREQUENCY
 #define CLOCK_FREQUENCY (16E6) /* 16M */

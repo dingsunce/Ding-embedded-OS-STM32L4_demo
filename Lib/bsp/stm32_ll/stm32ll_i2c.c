@@ -1,6 +1,6 @@
+#include "d_error.h"
 #include "d_list.h"
 #include "d_mem.h"
-#include "error.h"
 #include "i2c_func.h"
 #include "stm32ll_i2c_impl.h"
 

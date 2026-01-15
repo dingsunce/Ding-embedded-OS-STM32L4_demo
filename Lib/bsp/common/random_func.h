@@ -1,7 +1,7 @@
 #ifndef _RANDOM_FUNC_H
 #define _RANDOM_FUNC_H
 
-#include "define.h"
+#include "d_define.h"
 
 extern void Random_Init(void);
 extern u8   Random_Get8(void);

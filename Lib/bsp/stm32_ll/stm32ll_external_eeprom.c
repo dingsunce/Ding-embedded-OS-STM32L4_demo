@@ -280,13 +280,13 @@ OsErr_t Ee_Write16(EeAdd_t addr, u16 value)
 {
   OsErr_t err;
 
-  err = Ee_Write8(addr, HIGH_U16(value));
+  err = Ee_Write8(addr, HI_U16(value));
   if (err != OS_ERR_OK)
   {
     return err;
   }
 
-  err = Ee_Write8(addr + 1, LOW_U16(value));
+  err = Ee_Write8(addr + 1, LO_U16(value));
   return err;
 }
 

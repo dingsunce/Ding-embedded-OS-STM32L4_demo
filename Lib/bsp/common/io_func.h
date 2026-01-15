@@ -1,7 +1,7 @@
 #ifndef _IO_FUNC_H
 #define _IO_FUNC_H
 
-#include "define.h"
+#include "d_define.h"
 
 #if defined PLATFORM_STM8
 

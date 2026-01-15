@@ -1,7 +1,7 @@
 #include "stm32ll_i2c_impl.h"
 
 #include "Io_func.h"
-#include "error.h"
+#include "d_error.h"
 #include "i2c.h"
 #include "i2c_func.h"
 #include "stm32ll.h"
@@ -136,8 +136,8 @@ OsErr_t I2cImpl_StartTx(u8 addr, u8 *pData, u8 length)
    *    - to the Slave with a 7-Bit SLAVE_OWN_ADDRESS
    *    - with an auto stop condition generation when transmit all bytes
    */
-  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, TxLength, LL_I2C_MODE_AUTOEND,
-                        LL_I2C_GENERATE_START_WRITE);
+  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, TxLength,
+                        LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
 
   LL_DMA_SetDataLength(I2Cx_TX_DMA_INSTANCE, I2Cx_TX_DMA_CHANNEL, TxLength);
 
@@ -199,8 +199,8 @@ OsErr_t I2cImpl_StartRx(u8 addr, u8 *pData, u8 length)
    *  - to the Slave with a 7-Bit SLAVE_OWN_ADDRESS
    *  - with an auto stop condition generation when receive all bytes
    */
-  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, RxLength, LL_I2C_MODE_AUTOEND,
-                        LL_I2C_GENERATE_START_READ);
+  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, RxLength,
+                        LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_READ);
 
   LL_DMA_SetMemoryAddress(I2Cx_RX_DMA_INSTANCE, I2Cx_RX_DMA_CHANNEL, (u32)pRxData);
 
@@ -225,7 +225,8 @@ OsErr_t I2cImpl_Rx(u8 addr, u8 *pData, u8 length)
   return OS_ERR_OK;
 }
 
-OsErr_t I2cImpl_StartMemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData, u16 length)
+OsErr_t I2cImpl_StartMemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData,
+                              u16 length)
 {
   if (LL_I2C_IsActiveFlag_BUSY(I2Cx_INSTANCE))
     return OS_ERR_BUSY;
@@ -239,8 +240,8 @@ OsErr_t I2cImpl_StartMemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u
   }
   else
   {
-    TxBuffer[0] = HIGH_U16(memory);
-    TxBuffer[1] = LOW_U16(memory);
+    TxBuffer[0] = HI_U16(memory);
+    TxBuffer[1] = LO_U16(memory);
     memcpy((void *)(TxBuffer + 2), pData, length);
     TxLength = length + 2;
   }
@@ -256,8 +257,8 @@ OsErr_t I2cImpl_StartMemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u
    *    - to the Slave with a 7-Bit SLAVE_OWN_ADDRESS
    *    - with an auto stop condition generation when transmit all bytes
    */
-  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, TxLength, LL_I2C_MODE_AUTOEND,
-                        LL_I2C_GENERATE_START_WRITE);
+  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, TxLength,
+                        LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
 
   LL_DMA_SetDataLength(I2Cx_TX_DMA_INSTANCE, I2Cx_TX_DMA_CHANNEL, TxLength);
 
@@ -280,7 +281,8 @@ OsErr_t I2cImpl_MemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pD
   return OS_ERR_OK;
 }
 
-OsErr_t I2cImpl_StartMemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData, u16 length)
+OsErr_t I2cImpl_StartMemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData,
+                              u16 length)
 {
   if (LL_I2C_IsActiveFlag_BUSY(I2Cx_INSTANCE))
     return OS_ERR_BUSY;
@@ -293,8 +295,8 @@ OsErr_t I2cImpl_StartMemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u
   }
   else
   {
-    TxBuffer[0] = HIGH_U16(memory);
-    TxBuffer[1] = LOW_U16(memory);
+    TxBuffer[0] = HI_U16(memory);
+    TxBuffer[1] = LO_U16(memory);
     TxLength = 2;
   }
 
@@ -315,8 +317,8 @@ OsErr_t I2cImpl_StartMemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u
    *    - software end mode: TC flag is set when all data are transferred
    *
    */
-  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, TxLength, LL_I2C_MODE_SOFTEND,
-                        LL_I2C_GENERATE_START_WRITE);
+  LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, TxLength,
+                        LL_I2C_MODE_SOFTEND, LL_I2C_GENERATE_START_WRITE);
 
   LL_DMA_SetDataLength(I2Cx_TX_DMA_INSTANCE, I2Cx_TX_DMA_CHANNEL, TxLength);
 
@@ -363,8 +365,8 @@ void I2C1_EV_IRQHandler(void)
      *  - to the Slave with a 7-Bit SLAVE_OWN_ADDRESS
      *  - with an auto stop condition generation when receive all bytes
      */
-    LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, RxLength, LL_I2C_MODE_AUTOEND,
-                          LL_I2C_GENERATE_START_READ);
+    LL_I2C_HandleTransfer(I2Cx_INSTANCE, SlaveAddr, LL_I2C_ADDRSLAVE_7BIT, RxLength,
+                          LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_READ);
 
     LL_DMA_SetMemoryAddress(I2Cx_RX_DMA_INSTANCE, I2Cx_RX_DMA_CHANNEL, (u32)pRxData);
 

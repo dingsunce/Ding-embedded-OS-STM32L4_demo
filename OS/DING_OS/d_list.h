@@ -11,7 +11,7 @@ extern "C"
 {
 #endif
 
-#include "define.h"
+#include "d_define.h"
 
   typedef void **d_list_t;
 

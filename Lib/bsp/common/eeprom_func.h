@@ -1,8 +1,8 @@
 #ifndef _EEPROM_FUNC_H
 #define _EEPROM_FUNC_H
 
-#include "define.h"
-#include "error.h"
+#include "d_define.h"
+#include "d_error.h"
 
 typedef u16 EeAdd_t;
 

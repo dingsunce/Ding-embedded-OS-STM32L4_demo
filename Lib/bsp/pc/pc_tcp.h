@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-#include "define.h"
+#include "d_define.h"
 
   extern bool Tcp_CompareTxBuffer(u8 channel, const u8 *pData, u16 length);
 

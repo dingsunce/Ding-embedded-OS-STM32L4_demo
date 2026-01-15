@@ -51,11 +51,14 @@ void DProcess_Init(void)
 //-----------------------------------------------------------------------------------------------------------
 void DProcess_Exit(void)
 {
+  // firstly set the stop flag(if run in linux, linux kernel, windows)
   os_thread_destroy(ProcessThread);
 
+  // then wake up the thread to exit
   os_sem_destroy(ProcessPendingSem);
   os_sem_destroy(ProcessListSem);
 
+  // finnaly wait for thread exit
   os_thread_wait_for_completion(ProcessThread);
 
   OS_PRINT("ProcessThread Exit\n");

@@ -1,7 +1,7 @@
 #ifndef _RESET_FUNC_H
 #define _RESET_FUNC_H
 
-#include "define.h"
+#include "d_define.h"
 
 void Reset_Mcu(void);
 void Reset_Init(void);

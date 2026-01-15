@@ -1,7 +1,7 @@
 #include "stm8_i2c_impl.h"
 
 #include "Io_func.h"
-#include "error.h"
+#include "d_error.h"
 #include "i2c_func.h"
 #include "stm8l15x_conf.h"
 
@@ -35,7 +35,8 @@ void I2cImpl_Init(void)
   CLK_PeripheralClockConfig(CLK_Peripheral_I2C1, ENABLE);
 
   /* Initialize I2C peripheral */
-  I2C_Init(I2C1, 100000, 0, I2C_Mode_I2C, I2C_DutyCycle_2, I2C_Ack_Enable, I2C_AcknowledgedAddress_7bit);
+  I2C_Init(I2C1, 100000, 0, I2C_Mode_I2C, I2C_DutyCycle_2, I2C_Ack_Enable,
+           I2C_AcknowledgedAddress_7bit);
 
   disableInterrupts();
   ITC_SetSoftwarePriority(I2C1_SPI2_IRQn, ITC_PriorityLevel_1);

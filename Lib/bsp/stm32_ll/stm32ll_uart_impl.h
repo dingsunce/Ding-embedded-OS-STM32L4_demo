@@ -1,7 +1,7 @@
 #ifndef _STM32LL_UART_IMPL_H
 #define _STM32LL_UART_IMPL_H
 
-#include "define.h"
+#include "d_define.h"
 #include "stm32ll.h"
 
 // #define UART_HALF_DUPLEX
@@ -26,7 +26,7 @@ typedef const struct
   u32            TxDmaChannel;
   u32            RxDmaChannel;
 
-  u32 (*DMA_IsActiveFlag_TC_Func)( DMA_TypeDef *DMAx);
+  u32 (*DMA_IsActiveFlag_TC_Func)(DMA_TypeDef *DMAx);
   void (*DMA_ClearFlag_TC_Func)(DMA_TypeDef *DMAx);
 
 #ifdef UART_HALF_DUPLEX

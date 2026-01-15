@@ -1,7 +1,7 @@
 #ifndef STM32LL_IR_RX_H
 #define STM32LL_IR_RX_H
 
-#include "define.h"
+#include "d_define.h"
 
 // #define IR_CONFIG
 
@@ -24,8 +24,8 @@
 extern bool IrRx_IsBusy(void);
 
 /*! Enables IR Reception hardware timer. Used by IR Transmit driver */
-#define IrRx_Enable()                                                                                        \
-  LL_TIM_ClearFlag_CC(IR_TIMx_INSTANCE, IR_TIMx_INPUT_CAPTURE_CHANNEL);                                      \
+#define IrRx_Enable()                                                                              \
+  LL_TIM_ClearFlag_CC(IR_TIMx_INSTANCE, IR_TIMx_INPUT_CAPTURE_CHANNEL);                            \
   LL_TIM_EnableIT_CC(IR_TIMx_INSTANCE, IR_TIMx_INPUT_CAPTURE_CHANNEL)
 
 /*! Disables IR Reception hardware timer. Used by IR Transmit driver */

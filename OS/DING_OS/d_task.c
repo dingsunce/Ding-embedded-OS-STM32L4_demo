@@ -62,11 +62,14 @@ void DTask_Init(void)
 //-----------------------------------------------------------------------------------------------------------
 void DTask_Exit(void)
 {
+  // firstly set the stop flag(if run in linux, linux kernel, windows)
   os_thread_destroy(TaskThread);
 
+  // then wake up the thread to exit
   os_sem_destroy(TaskPendingSem);
   os_sem_destroy(TaskListSem);
 
+  // finnaly wait for thread exit
   os_thread_wait_for_completion(TaskThread);
 
   OS_PRINT("TaskThread Exit\n");

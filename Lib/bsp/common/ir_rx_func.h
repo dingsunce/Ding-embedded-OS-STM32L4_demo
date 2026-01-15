@@ -1,7 +1,7 @@
 #ifndef IR_RX_FUNC_H
 #define IR_RX_FUNC_H
 
-#include "define.h"
+#include "d_define.h"
 
 typedef void (*Ir_RcvFunc_t)(u8 *pData, u8 length);
 

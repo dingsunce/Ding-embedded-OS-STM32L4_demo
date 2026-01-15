@@ -1,8 +1,8 @@
 #ifndef _PWM_FUNC_H
 #define _PWM_FUNC_H
 
-#include "define.h"
-#include "error.h"
+#include "d_define.h"
+#include "d_error.h"
 
 // #define PWM_CONFIG
 

@@ -86,11 +86,14 @@ void DMsg_Exit(void)
 {
   MsgRunning = false;
 
+  // firstly set the stop flag(if run in linux, linux kernel, windows)
   os_thread_destroy(MsgThread);
 
+  // then wake up the thread to exit
   os_sem_destroy(MsgPendingSem);
   os_sem_destroy(MsgListSem);
 
+  // finnaly wait for thread exit
   os_thread_wait_for_completion(MsgThread);
 
   OS_PRINT("MsgThread Exit\n");

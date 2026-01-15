@@ -1,5 +1,5 @@
+#include "d_error.h"
 #include "d_mem.h"
-#include "error.h"
 #include "i2c_func.h"
 #include "s_list.h"
 #include "stm8_i2c_impl.h"

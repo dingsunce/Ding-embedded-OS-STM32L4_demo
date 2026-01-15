@@ -1,7 +1,7 @@
 #ifndef _STM32LL_PWM_IMPL_H
 #define _STM32LL_PWM_IMPL_H
 
-#include "define.h"
+#include "d_define.h"
 #include "stm32ll.h"
 
 typedef struct
