@@ -1,6 +1,6 @@
-#include "d_tick.h"
 #include "d_list.h"
 #include "d_mem.h"
+#include "d_tick.h"
 #include "eeprom_func.h"
 #include "stm32ll_i2c_impl.h"
 #include "wdg_func.h"
@@ -362,7 +362,7 @@ static OsErr_t Ee_StoreBufferList(EeAdd_t addr, u8 *pData, u16 length)
     memcpy(pElementData, pData, length);
     pElement->pData = pData;
     pElement->Length = length;
-    List_Add(EeList, pElement);
+    DList_Add(EeList, pElement);
 
     return OS_ERR_OK;
   }

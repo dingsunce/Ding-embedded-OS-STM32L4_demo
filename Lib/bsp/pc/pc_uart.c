@@ -40,7 +40,7 @@ OsErr_t Uart_Send(u8 channel, const u8 *pData, u16 length)
     pElement->pData = pElementData;
     pElement->Length = length;
 
-    List_Add(Uart[channel].TxList, pElement);
+    DList_Add(Uart[channel].TxList, pElement);
 
     return OS_ERR_OK;
   }
