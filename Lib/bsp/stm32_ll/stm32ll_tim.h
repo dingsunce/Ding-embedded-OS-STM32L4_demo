@@ -19,9 +19,9 @@
 #define _LL_TIM_ClearFlag_CC(TIMx, channel) LL_TIM_ClearFlag_CC##channel(TIMx)
 #define LL_TIM_ClearFlag_CC(TIMx, channel)  _LL_TIM_ClearFlag_CC(TIMx, channel)
 
-#define _LL_TIM_OC_SetCompareCH(TIMx, channel, CompareValue)                                                 \
+#define _LL_TIM_OC_SetCompareCH(TIMx, channel, CompareValue)                                       \
   LL_TIM_OC_SetCompareCH##channel(TIMx, CompareValue)
-#define LL_TIM_OC_SetCompareCH(TIMx, channel, CompareValue)                                                  \
+#define LL_TIM_OC_SetCompareCH(TIMx, channel, CompareValue)                                        \
   _LL_TIM_OC_SetCompareCH(TIMx, channel, CompareValue)
 
 extern void     LL_TIM_OC_SetCompare(TIM_TypeDef *TIMx, uint32_t channel, uint32_t CompareValue);

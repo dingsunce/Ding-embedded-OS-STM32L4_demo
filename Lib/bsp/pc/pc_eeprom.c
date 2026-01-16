@@ -1,6 +1,6 @@
+#include "d_list.h"
+#include "d_memb.h"
 #include "eeprom_func.h"
-#include "memb.h"
-#include "s_list.h"
 
 typedef struct EeEntry
 {
@@ -12,12 +12,12 @@ typedef struct EeEntry
 #define EE_SUM 500
 
 DLIST(EeList);
-MEMB(EeMem, struct EeEntry, EE_SUM);
+DMEMB(EeMem, struct EeEntry, EE_SUM);
 
 void Ee_Init(void)
 {
   DList_Init(EeList);
-  Memb_Init(&EeMem);
+  DMemb_Init(&EeMem);
 }
 
 void Ee_Process(void)
@@ -83,7 +83,7 @@ OsErr_t Ee_Write16(EeAdd_t add, u16 value)
 
 static OsErr_t AddEntryToList(u16 add, u16 data)
 {
-  EeEntry_t *entry = Memb_Alloc(&EeMem);
+  EeEntry_t *entry = DMemb_Alloc(&EeMem);
 
   if (entry != NULL)
   {

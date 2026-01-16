@@ -22,7 +22,7 @@ extern "C"
 
   typedef volatile uint32_t vu32;
   typedef volatile uint16_t vu16;
-  typedef volatile uint8_t  vu8;
+  typedef volatile uint8_t vu8;
 
   void Flash_Init(u32 flashStart, u32 flashEnd, u32 flashPageSize);
 

@@ -62,7 +62,7 @@ extern void Pwm_Process(void);
 extern OsErr_t Pwm_SetLevel(PwmTimerId_t timerId, float dutyCycle);
 extern OsErr_t Pwm_GetLevel(PwmTimerId_t timerId, float *level);
 
-extern void  Pwm_SetDutyCycle(u8 channel, float dutyCycle);
+extern void Pwm_SetDutyCycle(u8 channel, float dutyCycle);
 extern float Pwm_GetDutyCycle(u8 channel);
 
 #endif

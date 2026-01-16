@@ -34,7 +34,6 @@
 /*! Logical '0' min time: 0,900ms (1,125ms - 20%) */
 #define IR_ZERO_MIN (u16)((IR_ZERO * 0.8) + 0.5)
 
-
 /*** TIMER CONFIGURATION VALUES ***/
 
 /*! Defines the time after the last falling edge of an IR frame before it can be
@@ -100,39 +99,38 @@ void IrRx_Process(void)
   }
 }
 
-
 static void IrRx_CaptureInterrupt(void)
 {
   /* Enable IR timeout interrupt. Previously, clear any pending flag. */
   LL_TIM_ClearFlag_CC(IR_TIMx_INSTANCE, IR_TIMx_TIMEOUT_CHANNEL);
   LL_TIM_OC_SetCompareCH(IR_TIMx_INSTANCE, IR_TIMx_TIMEOUT_CHANNEL,
-                        LL_TIM_GetCounter(IR_TIMx_INSTANCE) + IR_RX_FRAME_TIMEOUT_COMPARE_VALUE);
+                         LL_TIM_GetCounter(IR_TIMx_INSTANCE) + IR_RX_FRAME_TIMEOUT_COMPARE_VALUE);
   LL_TIM_EnableIT_CC(IR_TIMx_INSTANCE, IR_TIMx_TIMEOUT_CHANNEL);
 
   /* Find pulse width by getting current counter value */
-  StopCouter=0;
-  u16 IrPulseWidth=0;
-  u16 ThisCaptureCounter=LL_TIM_GetCounter(IR_TIMx_INSTANCE);
-  if(ThisCaptureCounter>LastCaptureCounter)
+  StopCouter = 0;
+  u16 IrPulseWidth = 0;
+  u16 ThisCaptureCounter = LL_TIM_GetCounter(IR_TIMx_INSTANCE);
+  if (ThisCaptureCounter > LastCaptureCounter)
   {
-     IrPulseWidth = ThisCaptureCounter - LastCaptureCounter;
+    IrPulseWidth = ThisCaptureCounter - LastCaptureCounter;
   }
   else
   {
-     IrPulseWidth = 0xffff-LastCaptureCounter + ThisCaptureCounter;
+    IrPulseWidth = 0xffff - LastCaptureCounter + ThisCaptureCounter;
   }
-  
+
   LastCaptureCounter = ThisCaptureCounter;
 
   switch (RxState)
   {
-    case IR_RX_IDLE:
-      /* First falling edge detected. boot code */
-      ByteCursor = BitCursor = 0;
-      RxState = IR_RX_LEAD;
+  case IR_RX_IDLE:
+    /* First falling edge detected. boot code */
+    ByteCursor = BitCursor = 0;
+    RxState = IR_RX_LEAD;
     break;
 
-    case IR_RX_LEAD:
+  case IR_RX_LEAD:
     /* After receiving first falling edge, check for leading pulse burst. */
     /* Reset bit counters */
     ByteCursor = BitCursor = 0;
@@ -147,7 +145,7 @@ static void IrRx_CaptureInterrupt(void)
     }
     break;
 
-    case IR_RX_BITS:
+  case IR_RX_BITS:
     /* Once received first leading pulse, try to decode following bits. In
        the NEC protocol, bits are sent LSB first and MSB last!!! */
 
@@ -165,9 +163,9 @@ static void IrRx_CaptureInterrupt(void)
       RxBuffer[ByteCursor] >>= 1;
       BitCursor++;
     }
-    else if((IrPulseWidth>IR_LEAD_MIN)&&(IrPulseWidth<IR_LEAD_MAX))
-    {       
-        ByteCursor = BitCursor = 0;
+    else if ((IrPulseWidth > IR_LEAD_MIN) && (IrPulseWidth < IR_LEAD_MAX))
+    {
+      ByteCursor = BitCursor = 0;
     }
 
     /* Check if we have received a full byte */
@@ -179,42 +177,34 @@ static void IrRx_CaptureInterrupt(void)
     }
     break;
 
-    default:
+  default:
     /* Code should never reach this point. If so, go to idle state */
     RxState = IR_RX_IDLE;
     ByteCursor = 0;
     break;
-  
-  
- 
   }
 }
 
 static void IrRx_TimeoutExpire(void)
 {
- 
-  StopCouter++;
-  if(StopCouter>=2)
-  {
-      /* Disable IR timeout interrupt */
-    LL_TIM_DisableIT_CC(IR_TIMx_INSTANCE, IR_TIMx_TIMEOUT_CHANNEL);
-      /* Check we have received at least a full byte, to avoid that a spurious
 
-                        signal triggers the decoding routine. */
-    if(ByteCursor>0)
+  StopCouter++;
+  if (StopCouter >= 2)
+  {
+    /* Disable IR timeout interrupt */
+    LL_TIM_DisableIT_CC(IR_TIMx_INSTANCE, IR_TIMx_TIMEOUT_CHANNEL);
+    /* Check we have received at least a full byte, to avoid that a spurious
+
+                      signal triggers the decoding routine. */
+    if (ByteCursor > 0)
     {
       FrameRcv = true;
-    }   
+    }
 
     /* Reset reception state */
     RxState = IR_RX_IDLE;
-
   }
-  
-
- 
 }
-
 
 void IR_TIMx_IRQHandler(void)
 {
@@ -227,7 +217,8 @@ void IR_TIMx_IRQHandler(void)
   }
 #ifdef IR_ENABLE_TX
   else if (LL_TIM_IsEnabledIT_CC(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL) &&
-           LL_TIM_IsActiveFlag_CC(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL)) // IR tx compare
+           LL_TIM_IsActiveFlag_CC(IR_TIMx_INSTANCE,
+                                  IR_TIMx_OUTPUT_COMPARE_CHANNEL)) // IR tx compare
   {
     LL_TIM_ClearFlag_CC(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL);
 

@@ -15,7 +15,8 @@ const AdcChannel_t AdcChannels[ADC_CHANNEL_SUM] = ADC_CHANNELS;
 static void Activate_DMA(void)
 {
   /* Set DMA transfer addresses of source and destination */
-  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_3, LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
+  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_3,
+                         LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
                          (uint32_t)AdcValues, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 
   /* Set DMA transfer size */
@@ -43,8 +44,8 @@ static void Activate_DMA(void)
  *           none: ADC conversion start-stop to be performed
  *                 after this function
  *         - ADC group injected
- *           Feature not available                                  (feature not available on this STM32
- * series)
+ *           Feature not available                                  (feature not available on this
+ * STM32 series)
  * @param  None
  * @retval None
  */
@@ -80,7 +81,8 @@ static void Activate_ADC(void)
     /*       CPU processing cycles (depends on compilation optimization).     */
     /* Note: If system core clock frequency is below 200kHz, wait time        */
     /*       is only a few CPU processing cycles.                             */
-    wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US * (SystemCoreClock / (100000 * 2))) / 10);
+    wait_loop_index =
+        ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US * (SystemCoreClock / (100000 * 2))) / 10);
     while (wait_loop_index != 0)
     {
       wait_loop_index--;

@@ -74,17 +74,17 @@ void IrTx_Init(void)
   LL_TIM_EnableCounter(TIM17);
 }
 
-#define IrTx_EnablePwm()                                                                                     \
+#define IrTx_EnablePwm()                                                                           \
   LL_TIM_OC_SetCompareCH1(TIM17, 210) // base on 16MHz clock, period 420us to generate 38KHz
 
 #define IrTx_DisablePwm() LL_TIM_OC_SetCompareCH1(TIM17, 0)
 
-#define IrTx_SetCompare(counter)                                                                             \
-  LL_TIM_OC_SetCompareCH(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL,                                   \
+#define IrTx_SetCompare(counter)                                                                   \
+  LL_TIM_OC_SetCompareCH(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL,                         \
                          (u16)(LL_TIM_GetCounter(IR_TIMx_INSTANCE) + (counter)))
 
-#define IrTx_Enable()                                                                                        \
-  LL_TIM_ClearFlag_CC(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL);                                     \
+#define IrTx_Enable()                                                                              \
+  LL_TIM_ClearFlag_CC(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL);                           \
   LL_TIM_EnableIT_CC(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL)
 
 #define IrTx_Disable() LL_TIM_DisableIT_CC(IR_TIMx_INSTANCE, IR_TIMx_OUTPUT_COMPARE_CHANNEL)

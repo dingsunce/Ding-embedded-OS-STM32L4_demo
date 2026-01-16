@@ -20,11 +20,15 @@ extern OsErr_t I2cImpl_StartRx(u8 addr, u8 *pData, u8 length);
 extern OsErr_t I2cImpl_Tx(u8 addr, u8 *pData, u8 length);
 extern OsErr_t I2cImpl_Rx(u8 addr, u8 *pData, u8 length);
 
-extern OsErr_t I2cImpl_StartMemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData, u16 length);
-extern OsErr_t I2cImpl_StartMemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData, u16 length);
+extern OsErr_t I2cImpl_StartMemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData,
+                                     u16 length);
+extern OsErr_t I2cImpl_StartMemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData,
+                                     u16 length);
 
-extern OsErr_t I2cImpl_MemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData, u16 length);
-extern OsErr_t I2cImpl_MemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData, u16 length);
+extern OsErr_t I2cImpl_MemoryTx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData,
+                                u16 length);
+extern OsErr_t I2cImpl_MemoryRx(u8 addr, u16 memory, I2cMemorySize_t memorySize, u8 *pData,
+                                u16 length);
 
 extern u8  *I2cImpl_GetRxBuffer(void);
 extern bool I2cImpl_IsBusy(void);

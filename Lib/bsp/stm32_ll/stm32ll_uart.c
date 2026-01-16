@@ -1,7 +1,7 @@
 #include "stm32ll_uart.h"
 
+#include "d_list.h"
 #include "d_mem.h"
-#include "s_list.h"
 #include "uart_func.h"
 
 typedef struct
@@ -84,7 +84,7 @@ OsErr_t Uart_Send(u8 channel, const u8 *pData, u16 length)
     pElement->pData = pElementData;
     pElement->Length = length;
 
-    DList_Add(Uart[channel].TxList, pElement);
+    List_Add(Uart[channel].TxList, pElement);
 
     return OS_ERR_OK;
   }

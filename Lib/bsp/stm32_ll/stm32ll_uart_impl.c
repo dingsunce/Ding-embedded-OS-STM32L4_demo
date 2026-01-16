@@ -22,11 +22,13 @@ void UartImpl_Init(UartImpl_t *pUartImpl)
   LL_DMA_SetPeriphAddress(pUartImpl->DMAx, pUartImpl->TxDmaChannel,
                           LL_USART_DMA_GetRegAddr(pUartImpl->USARTx));
 
-  LL_DMA_ConfigAddresses(pUartImpl->DMAx, pUartImpl->RxDmaChannel, LL_USART_DMA_GetRegAddr(pUartImpl->USARTx),
-                         (u32)pUartImpl->pRam->RxBuffer, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_ConfigAddresses(pUartImpl->DMAx, pUartImpl->RxDmaChannel,
+                         LL_USART_DMA_GetRegAddr(pUartImpl->USARTx), (u32)pUartImpl->pRam->RxBuffer,
+                         LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 #elif defined STM32_SERIAL_G0
-  LL_DMA_SetPeriphAddress(pUartImpl->DMAx, pUartImpl->TxDmaChannel,
-                          LL_USART_DMA_GetRegAddr(pUartImpl->USARTx, LL_USART_DMA_REG_DATA_TRANSMIT));
+  LL_DMA_SetPeriphAddress(
+      pUartImpl->DMAx, pUartImpl->TxDmaChannel,
+      LL_USART_DMA_GetRegAddr(pUartImpl->USARTx, LL_USART_DMA_REG_DATA_TRANSMIT));
 
   LL_DMA_ConfigAddresses(pUartImpl->DMAx, pUartImpl->RxDmaChannel,
                          LL_USART_DMA_GetRegAddr(pUartImpl->USARTx, LL_USART_DMA_REG_DATA_RECEIVE),

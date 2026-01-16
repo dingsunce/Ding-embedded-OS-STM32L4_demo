@@ -20,8 +20,6 @@
 #include "tick_func.h"
 #include "uart_func.h"
 #include "unique_id_func.h"
-#include "usb_custom_hid_func.h"
 #include "wdg_func.h"
-
 
 #endif

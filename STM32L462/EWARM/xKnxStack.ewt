@@ -6175,9 +6175,6 @@
                     <name>$PROJ_DIR$\..\..\Lib\bsp\common\unique_id_func.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\Lib\bsp\common\usb_custom_hid_func.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\Lib\bsp\common\wdg_func.h</name>
                 </file>
             </group>
@@ -6218,12 +6215,6 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\Lib\bsp\stm32_ll\stm32ll_unique_id.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\Lib\bsp\stm32_ll\stm32ll_usb_custom_hid_func.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\Lib\bsp\stm32_ll\stm32ll_usb_custom_hid_func.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\Lib\bsp\stm32_ll\stm32ll_wdg.c</name>

@@ -12,9 +12,10 @@
 
 #if defined STM32_SERIAL_G0
 
-#define I2Cx_INSTANCE I2C1
-#define I2Cx_Init     MX_I2C1_Init
-#define I2Cx_IRQn     I2C1_IRQn
+#define I2Cx_INSTANCE   I2C1
+#define I2Cx_Init       MX_I2C1_Init
+#define I2Cx_IRQn       I2C1_IRQn
+#define I2Cx_IRQHandler I2C1_IRQHandler
 
 #define I2Cx_TX_DMA_INSTANCE DMA1
 #define I2Cx_TX_DMA_CHANNEL  LL_DMA_CHANNEL_1
@@ -30,9 +31,10 @@
 
 #elif defined STM32_SERIAL_L4
 
-#define I2Cx_INSTANCE I2C1
-#define I2Cx_Init     MX_I2C1_Init
-#define I2Cx_IRQn     I2C1_EV_IRQn
+#define I2Cx_INSTANCE   I2C1
+#define I2Cx_Init       MX_I2C1_Init
+#define I2Cx_IRQn       I2C1_EV_IRQn
+#define I2Cx_IRQHandler I2C1_EV_IRQHandler
 
 #define I2Cx_TX_DMA_INSTANCE DMA1
 #define I2Cx_TX_DMA_CHANNEL  LL_DMA_CHANNEL_6
@@ -347,14 +349,7 @@ void I2cImpl_OnError(void)
   LL_I2C_GenerateStopCondition(I2Cx_INSTANCE);
 }
 
-#if defined STM32_SERIAL_G0
-
-void I2C1_IRQHandler(void)
-
-#elif defined STM32_SERIAL_L4
-
-void I2C1_EV_IRQHandler(void)
-#endif
+void I2Cx_IRQHandler(void)
 {
   /* Check TC flag value in ISR register */
   if (LL_I2C_IsActiveFlag_TC(I2Cx_INSTANCE))
